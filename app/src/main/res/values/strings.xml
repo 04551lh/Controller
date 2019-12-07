@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">开易贴牌助手</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ky_assistant">开易贴牌助手</string>
+    <string name="product_id">厂商ID</string>
+    <string name="please_input">请输入</string>
+    <string name="edit">修改</string>
+    <string name="save">保存</string>
+    <string name="please_input_product_id_tip">请输入厂商ID~</string>
+    <string name="scan_code">扫码</string>
+    <string name="three_c_code">3C认证码</string>
+    <string name="device_type">设备型号</string>
+    <string name="terminal_id">终端ID</string>
+    <string name="entry">录入</string>
+    <string name="scan_result">扫码结果</string>
+    <string name="device_information">设备信息</string>
+    <string name="imei_code">IMEI码</string>
+    <string name="product_code">产品编码</string>
+    <string name="product_date">生产日期</string>
+    <string name="back_homepage">回到首页</string>
+    <string name="next_page">下一页</string>
+    <string name="scanning">继续扫码</string>
+    <string name="previous_page">上一页</string>
+</resources>
