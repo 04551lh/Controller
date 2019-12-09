@@ -81,13 +81,14 @@
             android:textColor="@android:color/black"
             android:textSize="16sp" />
 
-        <TextView
+        <EditText
             android:layout_width="0dp"
             android:layout_weight="3"
             android:layout_height="wrap_content"
             android:background="@drawable/text_style"
             android:id="@+id/tv_terminal_id"
             android:padding="10dp"
+            android:inputType="number"
             android:textColor="@android:color/black"
             android:textSize="16sp" />
     </LinearLayout>

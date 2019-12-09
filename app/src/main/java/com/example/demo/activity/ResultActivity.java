@@ -1,13 +1,10 @@
 package com.example.demo.activity;
 
-
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,17 +14,14 @@ import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
 import com.example.demo.network.Constant;
 import com.example.demo.network.OkHttpHelper;
+import com.example.demo.utils.NetUtil;
 import com.google.gson.Gson;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
 
 public class ResultActivity extends BaseActivity {
 
     private TextView mTvThreeId;
     private TextView mTvDeviceId;
-    private TextView mTvTerminalId;
+    private EditText mTvTerminalId;
     private TextView mTvProductId;
     private TextView mTvEntry;
 
@@ -41,10 +35,8 @@ public class ResultActivity extends BaseActivity {
 
     @Override
     public void initViews() {
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         mTvThreeId = findViewById(R.id.tv_three_id);
         mTvDeviceId = findViewById(R.id.tv_device_id);
         mTvTerminalId = findViewById(R.id.tv_terminal_id);
@@ -72,20 +64,22 @@ public class ResultActivity extends BaseActivity {
         mTvEntry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(NetUtil.getNetWorkStart(ResultActivity.this) == NetUtil.NETWORK_NONE){
+                    return;
+                }
                 ConfigBean configBean = new ConfigBean();
                 configBean.setProducerID(mProductId);
                 configBean.setTerminalModel(mDeviceType);
                 configBean.setTerminalId(mTerminalId);
-                configBean.setThreeCCode(mProductId);
+//                configBean.setThreeCCode(mThreeCCode);
 
                 String json = new Gson().toJson(configBean);
                 String response = mOkHttpHelper.post(Constant.UPDATA_CONFIG, json);
                 SucceedBean succeedBean = new Gson().fromJson(response, SucceedBean.class);
-                switch (succeedBean.getStatuesCode()) {
-                    case 0:
-                        Intent intent = new Intent(ResultActivity.this, QRCodeActivity.class);
-                        startActivity(intent);
-                        break;
+                if (succeedBean.getStatuesCode() == 0) {
+                    Intent intent = new Intent(ResultActivity.this, QRCodeActivity.class);
+                    intent.putExtra(Constant.PRODUCT_ID, mProductId);
+                    startActivity(intent);
                 }
 
             }

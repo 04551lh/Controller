@@ -20,7 +20,7 @@ import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.common.Constant;
 
 import java.util.List;
-//import java.util.Objects;
+import java.util.Objects;
 
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
@@ -38,9 +38,9 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
     private ProductFragment mProductFragment;
     private DateFragment mDateFragment;
 
-    private String mBackHomePage,mNextPage,mPreviousPage,mReScanning;
+    private String mBackHomePage,mNextPage,mPreviousPage,mReScanning,mProductId;
 
-    private OkHttpHelper mOkHttpHelper;
+    private OkHttpHelper mOkHttpHelper = OkHttpHelper.getInstance();
     private ResponseBean mResponseBean;
 
     @Override
@@ -59,7 +59,6 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
         mTvDateCode = findViewById(R.id.tv_date_code);
         mTvHomePage = findViewById(R.id.tv_homepage);
         mTvNext = findViewById(R.id.tv_next);
-        mOkHttpHelper = OkHttpHelper.getInstance();
         String response = mOkHttpHelper.post(com.example.demo.network.Constant.GET_CONFIG,"");
         mResponseBean = new Gson().fromJson(response,ResponseBean.class);
         initData();
@@ -73,12 +72,16 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
         mNextPage = getResources().getString(R.string.next_page);
         mPreviousPage = getResources().getString(R.string.previous_page);
         mReScanning = getResources().getString(R.string.scanning);
+        mProductId = Objects.requireNonNull(getIntent().getExtras()).getString(com.example.demo.network.Constant.PRODUCT_ID);
     }
 
     @Override
     public void setListener() {
         mTvHomePage.setOnClickListener(this);
         mTvNext.setOnClickListener(this);
+        mTvImeiCode.setOnClickListener(this);
+        mTvProductCode.setOnClickListener(this);
+        mTvDateCode.setOnClickListener(this);
     }
 
     private void initFragment() {
@@ -165,6 +168,22 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
     public void onClick(View v) {
         Fragment currentFragment = getCurrentFragment();
         switch (v.getId()){
+            case R.id.tv_imie_code:
+                clickTab(mImeiFragment);
+                mTvHomePage.setText(mBackHomePage);
+                mTvNext.setText(mNextPage);
+                break;
+            case R.id.tv_product_code:
+                clickTab(mProductFragment);
+                mTvHomePage.setText(mPreviousPage);
+                mTvNext.setText(mNextPage);
+                break;
+            case R.id.tv_date_code:
+                clickTab(mDateFragment);
+                mTvHomePage.setText(mPreviousPage);
+                mTvNext.setText(mReScanning);
+                break;
+
             case R.id.tv_homepage:
                 if(mTvHomePage.getText().toString().trim().equals(mBackHomePage))
                 startActivity( new Intent(QRCodeActivity.this,MainActivity.class));
@@ -203,11 +222,16 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
         if (requestCode == 0 && resultCode == RESULT_OK) {
             if (data != null) {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
-                Intent intent = new Intent(QRCodeActivity.this,ResultActivity.class);
-                intent.putExtra(com.example.demo.network.Constant.THREE_ID,"C002243");
-                intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID,"KY-BJX");
-                intent.putExtra(com.example.demo.network.Constant.TERMINAL_ID,"20191127002");
-                intent.putExtra(com.example.demo.network.Constant.PRODUCT_ID,content);
+//                String deviceId = content.substring(content.length()-17,content.length()-11);
+                String deviceId = "KY-BJX";
+                String terminalId = "";
+                if(content != null) terminalId = content.substring(content.length()-11);
+
+                Intent intent = new Intent(QRCodeActivity.this, ResultActivity.class);
+                intent.putExtra(com.example.demo.network.Constant.THREE_ID, content);
+                intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID, deviceId);
+                intent.putExtra(com.example.demo.network.Constant.TERMINAL_ID, terminalId);
+                intent.putExtra(com.example.demo.network.Constant.PRODUCT_ID, mProductId);
                 startActivity(intent);
             }
         }
