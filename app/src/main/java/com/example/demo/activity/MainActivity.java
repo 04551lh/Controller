@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -23,7 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
-public class MainActivity extends BaseActivity implements View.OnClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener, TextWatcher {
 
     private EditText mEtProductId;
     private EditText mEtProductType;
@@ -52,9 +54,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         mTvEdit = findViewById(R.id.tv_edit);
         mTvScan = findViewById(R.id.tv_scan);
         isSave = false;
-        mEtProductId.setText((String)sharedPreferencesHelper.get(com.example.demo.network.Constant.PRODUCT_ID,null));
-        mEtProductType.setText((String)sharedPreferencesHelper.get(com.example.demo.network.Constant.DEIVCE_ID,null));
-
+        String productId = (String)sharedPreferencesHelper.get(com.example.demo.network.Constant.PRODUCT_ID,null);
+        String deviceId = (String)sharedPreferencesHelper.get(com.example.demo.network.Constant.DEIVCE_ID,null);
+        mEtProductId.setText(productId);
+        mEtProductType.setText(deviceId);
+        if(productId != null &&deviceId != null){
+            mEtProductId.setEnabled(false);
+            mEtProductId.setClickable(false);
+            mEtProductId.setTextColor(Color.DKGRAY);
+            mEtProductType.setEnabled(false);
+            mEtProductType.setClickable(false);
+            mTvSave.setBackground(getResources().getDrawable(R.drawable.hollow_circle));
+            mTvSave.setTextColor(getResources().getColor(R.color.colorPrimary));
+            mEtProductType.setTextColor(Color.DKGRAY);
+            isSave = true;
+        }
     }
 
     @Override
@@ -62,6 +76,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         mTvSave.setOnClickListener(this);
         mTvEdit.setOnClickListener(this);
         mTvScan.setOnClickListener(this);
+        mEtProductType.addTextChangedListener(this);
     }
 
     @Override
@@ -178,5 +193,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             }
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        if(TextUtils.isEmpty(s)){
+            isSave = false;
+        }
     }
 }

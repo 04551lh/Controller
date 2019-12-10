@@ -35,7 +35,7 @@ public class ImeiFragment extends BaseFragment {
             if (!mQRData.equals("")) {
                 //根据字符串生成二维码图片并显示在界面上，第二个参数为图片的大小（350*350）
                 Bitmap logo = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-                Bitmap bitmap = CodeCreator.createQRCode(mQRData, 400, 400, logo);
+                Bitmap bitmap = CodeCreator.createQRCode(mQRData, 400, 400, null);
 //                Bitmap qrCodeBitmap = EncodingHandler.createQRCode(mQRData, 350);
                 mQRcode.setImageBitmap(bitmap);
             } else {

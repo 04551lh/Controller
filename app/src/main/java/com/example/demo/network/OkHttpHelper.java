@@ -3,12 +3,12 @@ package com.example.demo.network;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
 
-import com.example.demo.activity.MainActivity;
-import com.example.demo.base.BaseAPP;
+import com.example.demo.utils.MyException;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +34,16 @@ public class OkHttpHelper {
     private final static int READ_TIMEOUT = 3;
     private final static int WRITE_TIMEOUT = 3;
     private static OkHttpHelper instance = null;
+
+    public MyException getMyException() {
+        return myException;
+    }
+
+    public void setMyException(MyException myException) {
+        this.myException = myException;
+    }
+
+    private MyException myException;
 
     private OkHttpHelper() {
         mLogging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
@@ -68,14 +78,19 @@ public class OkHttpHelper {
                 .build();
         try (Response response = mOkHttpClient.newCall(request).execute()) {
             return response.body().string();
-        } catch (IOException e) {
+        }
+        catch (SocketTimeoutException e) {
+            Log.i("YZG",e.toString());
+            myException.show("网络异常，请重新再试~");
+        } catch (SocketException e) {
+            Log.i("YZG",e.toString());
+            myException.show("网络异常，请重新再试~");
+        }
+        catch (IOException e) {
+            Log.i("YZG",e.toString());
             e.printStackTrace();
-            if(e instanceof SocketTimeoutException || e instanceof SocketTimeoutException ){
-                Toast.makeText(BaseAPP.getInstance().getApplicationContext(),"网络异常，请重新再试~",Toast.LENGTH_SHORT);
-            }
-
+            myException.show(e.toString());
         }
         return null;
     }
-
 }

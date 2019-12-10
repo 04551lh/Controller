@@ -9,7 +9,7 @@ import android.app.Application;
  */
 public class BaseAPP extends Application {
 
-    private volatile static BaseAPP instance = null;//防止多个线程同时访问
+    private static BaseAPP instance = null;
 
     public static BaseAPP getInstance() {
         if (instance==null){
