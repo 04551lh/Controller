@@ -34,16 +34,15 @@ public class Constant {
 
     public static final String WIFI_SERVER_IP_ADDRESS1 = "172.16.0.192:8000";
 
-//    public static final String WIFI_SERVER_IP_ADDRESS1 = "172.16.0.234:8000";
-
     public static final String USB_SERVER_IP_ADDRESS = "192.168.42.254:8000";
 
-    public static final String BASE_URL = "http://"+ WIFI_SERVER_IP_ADDRESS1;
+    public static final String BASE_URL = "http://"+ USB_SERVER_IP_ADDRESS;
 
     public static final String UPDATA_CONFIG = BASE_URL + "/factoryTerminalInfoConfig";
 
     public static final String GET_CONFIG = BASE_URL + "/factoryTerminalInfoRequest";
 
 
+    public static final String ACTION_USB_STATE = "android.hardware.usb.action.USB_STATE";
 
 }

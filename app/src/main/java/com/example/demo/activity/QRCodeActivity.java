@@ -19,6 +19,9 @@ import com.google.gson.Gson;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.common.Constant;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,7 +41,7 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
     private ProductFragment mProductFragment;
     private DateFragment mDateFragment;
 
-    private String mBackHomePage,mNextPage,mPreviousPage,mReScanning,mProductId;
+    private String mBackHomePage, mNextPage, mPreviousPage, mReScanning, mProductId, mProductType;
 
     private OkHttpHelper mOkHttpHelper = OkHttpHelper.getInstance();
     private ResponseBean mResponseBean;
@@ -59,20 +62,21 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
         mTvDateCode = findViewById(R.id.tv_date_code);
         mTvHomePage = findViewById(R.id.tv_homepage);
         mTvNext = findViewById(R.id.tv_next);
-        String response = mOkHttpHelper.post(com.example.demo.network.Constant.GET_CONFIG,"");
-        mResponseBean = new Gson().fromJson(response,ResponseBean.class);
+        String response = mOkHttpHelper.post(com.example.demo.network.Constant.GET_CONFIG, "");
+        mResponseBean = new Gson().fromJson(response, ResponseBean.class);
         initData();
         initFragment();
     }
 
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void initData(){
+    private void initData() {
         mBackHomePage = getResources().getString(R.string.back_homepage);
         mNextPage = getResources().getString(R.string.next_page);
         mPreviousPage = getResources().getString(R.string.previous_page);
         mReScanning = getResources().getString(R.string.scanning);
         mProductId = Objects.requireNonNull(getIntent().getExtras()).getString(com.example.demo.network.Constant.PRODUCT_ID);
+        mProductType = Objects.requireNonNull(getIntent().getExtras()).getString(com.example.demo.network.Constant.DEIVCE_ID);
     }
 
     @Override
@@ -88,19 +92,35 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (!mImeiFragment.isAdded()) {
             Bundle bundle = new Bundle();
-            bundle.putString(com.example.demo.network.Constant.IMEI_CODE,mResponseBean.getResult().getImei());
+            bundle.putString(com.example.demo.network.Constant.IMEI_CODE, mResponseBean.getResult().getImei());
             mImeiFragment.setArguments(bundle);
             fragmentTransaction.add(R.id.fl_contain, mImeiFragment);
         }
         if (!mProductFragment.isAdded()) {
+            String productCoding = mResponseBean.getResult().getProductCoding();
+            if (!productCoding.startsWith("KY")) {
+                productCoding = "KY" + productCoding;
+            }
             Bundle bundle = new Bundle();
-            bundle.putString(com.example.demo.network.Constant.PRODUCT_CODE,mResponseBean.getResult().getProductCoding());
+            bundle.putString(com.example.demo.network.Constant.PRODUCT_CODE, productCoding);
             mProductFragment.setArguments(bundle);
             fragmentTransaction.add(R.id.fl_contain, mProductFragment);
         }
         if (!mDateFragment.isAdded()) {
+            String date = mResponseBean.getResult().getManufactureDate();
+            if (!date.contains(".")) {
+                SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+                Date date1 = null;
+                try {
+                    date1 = format.parse(date);
+                    SimpleDateFormat format1 = new SimpleDateFormat("yyyy.MM.dd");
+                    date = format1.format(date1);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
             Bundle bundle = new Bundle();
-            bundle.putString(com.example.demo.network.Constant.DATE_CODE,mResponseBean.getResult().getManufactureDate());
+            bundle.putString(com.example.demo.network.Constant.DATE_CODE, date);
             mDateFragment.setArguments(bundle);
             fragmentTransaction.add(R.id.fl_contain, mDateFragment);
         }
@@ -167,7 +187,7 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void onClick(View v) {
         Fragment currentFragment = getCurrentFragment();
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.tv_imie_code:
                 clickTab(mImeiFragment);
                 mTvHomePage.setText(mBackHomePage);
@@ -185,32 +205,29 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
                 break;
 
             case R.id.tv_homepage:
-                if(mTvHomePage.getText().toString().trim().equals(mBackHomePage))
-                startActivity( new Intent(QRCodeActivity.this,MainActivity.class));
-                else{
+                if (mTvHomePage.getText().toString().trim().equals(mBackHomePage))
+                    startActivity(new Intent(QRCodeActivity.this, MainActivity.class));
+                else {
                     if (currentFragment instanceof ProductFragment) {
                         clickTab(mImeiFragment);
                         mTvHomePage.setText(mBackHomePage);
-                    }
-                    else if (currentFragment instanceof DateFragment) {
+                    } else if (currentFragment instanceof DateFragment) {
                         clickTab(mProductFragment);
                         mTvNext.setText(mNextPage);
                     }
                 }
                 break;
-             case R.id.tv_next:
-                 if (currentFragment instanceof ImeiFragment) {
+            case R.id.tv_next:
+                if (currentFragment instanceof ImeiFragment) {
                     clickTab(mProductFragment);
                     mTvHomePage.setText(mPreviousPage);
-                 }
-                 else if (currentFragment instanceof ProductFragment) {
-                     clickTab(mDateFragment);
-                     mTvNext.setText(mReScanning);
-                 }
-                 else if (currentFragment instanceof DateFragment) {
-                     Intent openCameraIntent = new Intent(QRCodeActivity.this, CaptureActivity.class);
-                     startActivityForResult(openCameraIntent, 0);
-                 }
+                } else if (currentFragment instanceof ProductFragment) {
+                    clickTab(mDateFragment);
+                    mTvNext.setText(mReScanning);
+                } else if (currentFragment instanceof DateFragment) {
+                    Intent openCameraIntent = new Intent(QRCodeActivity.this, CaptureActivity.class);
+                    startActivityForResult(openCameraIntent, 0);
+                }
                 break;
         }
     }
@@ -223,13 +240,11 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
             if (data != null) {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
 //                String deviceId = content.substring(content.length()-17,content.length()-11);
-                String deviceId = "KY-BJX";
                 String terminalId = "";
-                if(content != null) terminalId = content.substring(content.length()-11);
-
+                if (content != null) terminalId = content.substring(content.length() - 11);
                 Intent intent = new Intent(QRCodeActivity.this, ResultActivity.class);
                 intent.putExtra(com.example.demo.network.Constant.THREE_ID, content);
-                intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID, deviceId);
+                intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID, mProductType);
                 intent.putExtra(com.example.demo.network.Constant.TERMINAL_ID, terminalId);
                 intent.putExtra(com.example.demo.network.Constant.PRODUCT_ID, mProductId);
                 startActivity(intent);

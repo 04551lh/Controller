@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
+import com.example.demo.utils.SharedPreferencesHelper;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.common.Constant;
 
@@ -24,11 +26,13 @@ import androidx.core.app.ActivityCompat;
 public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private EditText mEtProductId;
+    private EditText mEtProductType;
     private TextView mTvSave;
     private TextView mTvEdit;
-    private TextView mTvHint;
-    private String mSave, mScanCode;
+    private TextView mTvScan;
+    private boolean isSave;
 
+    private SharedPreferencesHelper sharedPreferencesHelper;
     @Override
     public int getLayoutResId() {
         return R.layout.activity_main;
@@ -37,26 +41,27 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onResume() {
         super.onResume();
-        mTvSave.setText(mSave);
-        mTvEdit.setVisibility(View.GONE);
-        mTvHint.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void initViews() {
+        sharedPreferencesHelper = new SharedPreferencesHelper(this);
         mEtProductId = findViewById(R.id.et_product_id);
+        mEtProductType = findViewById(R.id.et_product_type);
         mTvSave = findViewById(R.id.tv_save);
         mTvEdit = findViewById(R.id.tv_edit);
-        mTvHint = findViewById(R.id.tv_hint);
-        mSave = getResources().getString(R.string.save);
-        mScanCode = getResources().getString(R.string.scan_code);
+        mTvScan = findViewById(R.id.tv_scan);
+        isSave = false;
+        mEtProductId.setText((String)sharedPreferencesHelper.get(com.example.demo.network.Constant.PRODUCT_ID,null));
+        mEtProductType.setText((String)sharedPreferencesHelper.get(com.example.demo.network.Constant.DEIVCE_ID,null));
+
     }
 
     @Override
     public void setListener() {
         mTvSave.setOnClickListener(this);
         mTvEdit.setOnClickListener(this);
-        mTvHint.setOnClickListener(this);
+        mTvScan.setOnClickListener(this);
     }
 
     @Override
@@ -66,14 +71,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         if (requestCode == 0 && resultCode == RESULT_OK) {
             if (data != null) {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
-//                String deviceId = content.substring(content.length()-17,content.length()-11);
-                String deviceId = "KY-BJX";
                 String terminalId = "";
                 if (content != null) terminalId = content.substring(content.length() - 11);
                 String mProductId = mEtProductId.getText().toString().trim();
+                String mProductType = mEtProductType.getText().toString().trim();
                 Intent intent = new Intent(MainActivity.this, ResultActivity.class);
                 intent.putExtra(com.example.demo.network.Constant.THREE_ID, content);
-                intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID, deviceId);
+                intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID, mProductType);
                 intent.putExtra(com.example.demo.network.Constant.TERMINAL_ID, terminalId);
                 intent.putExtra(com.example.demo.network.Constant.PRODUCT_ID, mProductId);
                 startActivity(intent);
@@ -85,24 +89,45 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.tv_edit:
+                if (!isSave) {
+                    Toast.makeText(MainActivity.this,"请先保存~",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                mEtProductId.setEnabled(true);
+                mEtProductId.setClickable(true);
+                mEtProductType.setEnabled(true);
+                mEtProductType.setClickable(true);
+                mTvSave.setBackground(getResources().getDrawable(R.drawable.solid_round));
+                mTvSave.setTextColor(Color.WHITE);
+                break;
             case R.id.tv_save:
                 if (TextUtils.isEmpty(mEtProductId.getText())) {
                     Toast.makeText(MainActivity.this, getResources().getString(R.string.please_input_product_id_tip), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (mTvSave.getText().toString().trim().equals(mSave)) {
-                    mTvSave.setText(mScanCode);
-                    mTvEdit.setVisibility(View.VISIBLE);
-                    mTvHint.setVisibility(View.GONE);
-                } else if (mTvSave.getText().toString().trim().equals(mScanCode)) {
-                    //打开扫描界面扫描条形码或二维码
-                    setCameraManifest();
+                  if (TextUtils.isEmpty(mEtProductType.getText())) {
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.please_input_product_type_tip), Toast.LENGTH_SHORT).show();
+                    return;
                 }
+                mEtProductId.setEnabled(false);
+                mEtProductId.setClickable(false);
+                mEtProductId.setTextColor(Color.DKGRAY);
+                mEtProductType.setEnabled(false);
+                mEtProductType.setClickable(false);
+                mTvSave.setBackground(getResources().getDrawable(R.drawable.hollow_circle));
+                mTvSave.setTextColor(getResources().getColor(R.color.colorPrimary));
+                mEtProductType.setTextColor(Color.DKGRAY);
+                isSave = true;
+                sharedPreferencesHelper.put(com.example.demo.network.Constant.PRODUCT_ID,mEtProductId.getText());
+                sharedPreferencesHelper.put(com.example.demo.network.Constant.DEIVCE_ID,mEtProductType.getText());
                 break;
-            case R.id.tv_edit:
-                mTvSave.setText(mSave);
-                mTvEdit.setVisibility(View.GONE);
-                mTvHint.setVisibility(View.VISIBLE);
+            case R.id.tv_scan:
+                if (!isSave) {
+                    Toast.makeText(MainActivity.this,"请先保存~",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                setCameraManifest();
                 break;
         }
     }

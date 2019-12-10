@@ -29,21 +29,53 @@
         android:padding="16dp">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingRight="16dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical|left"
             android:text="@string/product_id"
             android:textColor="@android:color/black"
             android:textSize="16sp" />
 
         <EditText
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             android:background="@drawable/input_style"
             android:hint="@string/please_input"
-            android:inputType="number"
+            android:inputType="text"
+            android:singleLine="true"
             android:id="@+id/et_product_id"
             android:padding="10dp"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical|left"
+            android:text="@string/product_type"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="wrap_content"
+            android:background="@drawable/input_style"
+            android:hint="@string/please_input"
+            android:inputType="text"
+            android:id="@+id/et_product_type"
+            android:padding="10dp"
+            android:singleLine="true"
             android:textColor="@android:color/black"
             android:textSize="16sp" />
     </LinearLayout>
@@ -72,7 +104,6 @@
             android:background="@drawable/hollow_circle"
             android:gravity="center"
             android:text="@string/edit"
-            android:visibility="gone"
             android:textColor="@color/colorPrimary"
             android:textSize="16sp" />
         <TextView
@@ -91,10 +122,18 @@
             android:textSize="16sp" />
         <TextView
             android:layout_width="0dp"
-            android:id="@+id/tv_hint"
-            android:visibility="visible"
             android:layout_height="match_parent"
             android:layout_weight="1" />
+        <TextView
+            android:id="@+id/tv_scan"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:background="@drawable/solid_round"
+            android:gravity="center"
+            android:text="@string/scan_code"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"

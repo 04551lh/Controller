@@ -3,6 +3,10 @@ package com.example.demo.network;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.example.demo.activity.MainActivity;
+import com.example.demo.base.BaseAPP;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -66,8 +70,8 @@ public class OkHttpHelper {
             return response.body().string();
         } catch (IOException e) {
             e.printStackTrace();
-            if(e instanceof SocketTimeoutException){
-
+            if(e instanceof SocketTimeoutException || e instanceof SocketTimeoutException ){
+                Toast.makeText(BaseAPP.getInstance().getApplicationContext(),"网络异常，请重新再试~",Toast.LENGTH_SHORT);
             }
 
         }

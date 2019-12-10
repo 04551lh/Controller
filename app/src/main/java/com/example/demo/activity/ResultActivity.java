@@ -1,6 +1,10 @@
 package com.example.demo.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
@@ -14,7 +18,6 @@ import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
 import com.example.demo.network.Constant;
 import com.example.demo.network.OkHttpHelper;
-import com.example.demo.utils.NetUtil;
 import com.google.gson.Gson;
 
 public class ResultActivity extends BaseActivity {
@@ -28,6 +31,13 @@ public class ResultActivity extends BaseActivity {
     private String mProductId, mThreeCCode, mDeviceType, mTerminalId;
     private OkHttpHelper mOkHttpHelper;
 
+    //USB
+    private BroadcastReceiver mReceiver;
+
+    private boolean mConnected = false;
+    private boolean mConfigured =false;
+
+
     @Override
     public int getLayoutResId() {
         return R.layout.activity_result;
@@ -35,6 +45,7 @@ public class ResultActivity extends BaseActivity {
 
     @Override
     public void initViews() {
+        initUSB();
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         mTvThreeId = findViewById(R.id.tv_three_id);
@@ -44,6 +55,27 @@ public class ResultActivity extends BaseActivity {
         mTvEntry = findViewById(R.id.tv_entry);
         mOkHttpHelper = OkHttpHelper.getInstance();
         initData();
+    }
+
+    private void initUSB(){
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if(intent.hasExtra(UsbManager.EXTRA_PERMISSION_GRANTED)) {
+                    boolean permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
+                }
+                switch(action) {
+                    case Constant.ACTION_USB_STATE:
+                        mConnected = intent.getBooleanExtra("connected", false);
+                        mConfigured = intent.getBooleanExtra("configured", false);
+                        break;
+                }
+            }
+        };
+        IntentFilter mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(Constant.ACTION_USB_STATE);
+        registerReceiver(mReceiver, mIntentFilter);
     }
 
 
@@ -64,13 +96,16 @@ public class ResultActivity extends BaseActivity {
         mTvEntry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(NetUtil.getNetWorkStart(ResultActivity.this) == NetUtil.NETWORK_NONE){
+                if(!mConfigured || !mConnected){
+                    Toast.makeText(ResultActivity.this, getResources().getString(R.string.please_usb_tip),Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                String terminalId = mTvTerminalId.getText().toString().trim();
                 ConfigBean configBean = new ConfigBean();
                 configBean.setProducerID(mProductId);
                 configBean.setTerminalModel(mDeviceType);
-                configBean.setTerminalId(mTerminalId);
+                configBean.setTerminalId(terminalId);
 //                configBean.setThreeCCode(mThreeCCode);
 
                 String json = new Gson().toJson(configBean);
@@ -85,5 +120,17 @@ public class ResultActivity extends BaseActivity {
             }
         });
     }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
+
+    private void addText(String str) {
+        mTvProductId.setText(mTvProductId.getText().toString() + str + "\n");
+    }
+
+
 
 }
