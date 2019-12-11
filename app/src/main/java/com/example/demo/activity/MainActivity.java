@@ -19,6 +19,7 @@ import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
 import com.example.demo.utils.SharedPreferencesHelper;
 import com.yzq.zxinglibrary.android.CaptureActivity;
+import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
 import androidx.annotation.NonNull;
@@ -88,6 +89,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
                 String terminalId = "";
                 if (content != null) terminalId = content.substring(content.length() - 11);
+//                if (content != null) terminalId = content;
                 String mProductId = mEtProductId.getText().toString().trim();
                 String mProductType = mEtProductType.getText().toString().trim();
                 Intent intent = new Intent(MainActivity.this, ResultActivity.class);
@@ -155,9 +157,42 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, 0);
             } else {
                 Toast.makeText(MainActivity.this, "不需要动态获取权限", Toast.LENGTH_SHORT);
-                Intent openCameraIntent = new Intent(MainActivity.this, CaptureActivity.class);
-                startActivityForResult(openCameraIntent, 0);
+                Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
+                /*ZxingConfig是配置类
+                 *可以设置是否显示底部布局，闪光灯，相册，
+                 * 是否播放提示音  震动
+                 * 设置扫描框颜色等
+                 * 也可以不传这个参数
+                 * */
+                ZxingConfig config = new ZxingConfig();
+                config.setPlayBeep(true);//是否播放扫描声音 默认为true
+                config.setShake(true);//是否震动  默认为true
+                config.setDecodeBarCode(true);//是否扫描条形码 默认为true
+//                config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
+                config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
+                config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
+                config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+                intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
+                startActivityForResult(intent, 0);
             }
+        }else{
+            Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
+            /*ZxingConfig是配置类
+             *可以设置是否显示底部布局，闪光灯，相册，
+             * 是否播放提示音  震动
+             * 设置扫描框颜色等
+             * 也可以不传这个参数
+             * */
+            ZxingConfig config = new ZxingConfig();
+            config.setPlayBeep(true);//是否播放扫描声音 默认为true
+            config.setShake(true);//是否震动  默认为true
+            config.setDecodeBarCode(true);//是否扫描条形码 默认为true
+//                config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
+            config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
+            config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
+            config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+            intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
+            startActivityForResult(intent, 0);
         }
     }
 
@@ -166,12 +201,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == 0 && grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                Intent openCameraIntent = new Intent(MainActivity.this, CaptureActivity.class);
-                startActivityForResult(openCameraIntent, 0);
+                Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
+                ZxingConfig config = new ZxingConfig();
+                config.setPlayBeep(true);//是否播放扫描声音 默认为true
+                config.setShake(true);//是否震动  默认为true
+                config.setDecodeBarCode(true);//是否扫描条形码 默认为true
+//                config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
+                config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
+                config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
+                config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+                intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
+                startActivityForResult(intent, 0);
             }
         }
     }
-
 
     // 退出时间
     private long currentBackPressedTime = 0;

@@ -35,7 +35,7 @@ public class DateFragment extends BaseFragment {
 
     @Override
     public void setViewData(View view) {
-        try {
+//        try {
             if (!mQRData.equals("")) {
                 //根据字符串生成二维码图片并显示在界面上，第二个参数为图片的大小（350*350）
                 Bitmap logo = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
@@ -45,9 +45,9 @@ public class DateFragment extends BaseFragment {
             } else {
                 Toast.makeText(getActivity(), "Text can not be empty", Toast.LENGTH_SHORT).show();
             }
-        } catch (WriterException e) {                    // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+//        } catch (WriterException e) {                    // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
     }
 
     @Override

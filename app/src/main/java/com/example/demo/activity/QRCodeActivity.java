@@ -17,7 +17,10 @@ import com.example.demo.fragment.ProductFragment;
 import com.example.demo.network.OkHttpHelper;
 import com.google.gson.Gson;
 import com.yzq.zxinglibrary.android.CaptureActivity;
+import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
+//import com.yzq.zxinglibrary.android.CaptureActivity;
+//import com.yzq.zxinglibrary.common.Constant;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -225,8 +228,19 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
                     clickTab(mDateFragment);
                     mTvNext.setText(mReScanning);
                 } else if (currentFragment instanceof DateFragment) {
-                    Intent openCameraIntent = new Intent(QRCodeActivity.this, CaptureActivity.class);
-                    startActivityForResult(openCameraIntent, 0);
+//                    Intent openCameraIntent = new Intent(QRCodeActivity.this, CaptureActivity.class);
+//                    startActivityForResult(openCameraIntent, 0);
+                    Intent intent = new Intent(QRCodeActivity.this, CaptureActivity.class);
+                    ZxingConfig config = new ZxingConfig();
+                    config.setPlayBeep(true);//是否播放扫描声音 默认为true
+                    config.setShake(true);//是否震动  默认为true
+//                    config.setDecodeBarCode(true);//是否扫描条形码 默认为true
+//                    config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
+                    config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
+                    config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
+                    config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+                    intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
+                    startActivityForResult(intent, 0);
                 }
                 break;
         }
@@ -238,10 +252,12 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
         // 扫描二维码/条码回传
         if (requestCode == 0 && resultCode == RESULT_OK) {
             if (data != null) {
+//                String content = data.getStringExtra(Constant.CODED_CONTENT);
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
 //                String deviceId = content.substring(content.length()-17,content.length()-11);
                 String terminalId = "";
                 if (content != null) terminalId = content.substring(content.length() - 11);
+//                if (content != null) terminalId = content;
                 Intent intent = new Intent(QRCodeActivity.this, ResultActivity.class);
                 intent.putExtra(com.example.demo.network.Constant.THREE_ID, content);
                 intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID, mProductType);

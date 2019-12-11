@@ -2,6 +2,9 @@ package com.example.demo.base;
 
 import android.app.Application;
 
+import com.tencent.bugly.Bugly;
+import com.tencent.bugly.crashreport.CrashReport;
+
 /**
  * Created by dell on 2019/12/10 12:12
  * Description:
@@ -22,4 +25,10 @@ public class BaseAPP extends Application {
         return instance;
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+//        CrashReport.initCrashReport(getApplicationContext(), "6015c90158", false);
+        Bugly.init(getApplicationContext(), "6015c90158", false);
+    }
 }

@@ -24,7 +24,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
  * Emain: 1187278976@qq.com
  */
 public class OkHttpHelper {
-    private final static String TAG = "OkHttpHelper";
+    private final static String TAG = "YZG.OkHttpHelper";
     //网络请求日志打印
     private HttpLoggingInterceptor mLogging;
     //网络请求
@@ -49,7 +49,7 @@ public class OkHttpHelper {
         mLogging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
             @Override
             public void log(String message) {
-                Log.i(TAG, message);
+                Log.i(TAG, "--------> " + message);
             }
         });
         mLogging.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -71,6 +71,7 @@ public class OkHttpHelper {
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public String post(String url, String json) {
+        Log.d(TAG, "make port --> " + url + " with json " + json);
         RequestBody body = RequestBody.create(Constant.JSON, json);
         Request request = new Request.Builder()
                 .url(url)
@@ -80,14 +81,14 @@ public class OkHttpHelper {
             return response.body().string();
         }
         catch (SocketTimeoutException e) {
-            Log.i("YZG",e.toString());
+            Log.i(TAG, e.toString());
             myException.show("网络异常，请重新再试~");
         } catch (SocketException e) {
-            Log.i("YZG",e.toString());
+            Log.i(TAG, e.toString());
             myException.show("网络异常，请重新再试~");
         }
         catch (IOException e) {
-            Log.i("YZG",e.toString());
+            Log.i(TAG, e.toString());
             e.printStackTrace();
             myException.show(e.toString());
         }

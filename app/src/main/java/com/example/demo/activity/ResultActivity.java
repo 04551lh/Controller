@@ -99,10 +99,10 @@ public class ResultActivity extends BaseActivity implements MyException {
             public void onClick(View v) {
                 mTvEntry.setBackground(getResources().getDrawable(R.drawable.hollow_circle));
                 mTvEntry.setTextColor(getResources().getColor(R.color.colorPrimary));
-                if (!mConfigured || !mConnected) {
-                    Toast.makeText(ResultActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
-                    return;
-                }
+//                if (!mConfigured || !mConnected) {
+//                    Toast.makeText(ResultActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
                 String terminalId = mTvTerminalId.getText().toString().trim();
                 ConfigBean configBean = new ConfigBean();
                 configBean.setProducerID(mProductId);

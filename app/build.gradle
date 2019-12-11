@@ -17,6 +17,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                def fileName = "Product_${defaultConfig.versionName}_${releaseTime()}.apk"
+                outputFileName = fileName
+            }
+        }
+    }
 }
 
 dependencies {
@@ -27,11 +37,21 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-
     /*添加依赖*/
-    implementation 'com.github.yuzhiqiang1993:zxing:2.0.0'
-
-    implementation("com.squareup.okhttp3:okhttp:4.2.1")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.2.1")
+    //    implementation 'com.github.yuzhiqiang1993:zxing:2.0.0'
+    //noinspection GradleCompatible
+    compile 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.github.yuzhiqiang1993:zxing:2.2.5'
+    //    implementation 'com.journeyapps:zxing-android-embedded:2.3.0@aar'
+    //    implementation  'com.journeyapps:zxing-android-legacy:2.3.0@aar'
+    //    implementation  'com.journeyapps:zxing-android-integration:2.3.0@aar'
+    //    implementation  'com.google.zxing:core:3.2.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.2.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.2.1'
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation files('libs/bugly_crash_release.jar')
+}
+
+static def releaseTime() {
+    return new Date().format("yyyyMMddHHmmss")
 }
