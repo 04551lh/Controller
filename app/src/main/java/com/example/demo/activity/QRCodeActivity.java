@@ -256,10 +256,10 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
 //                String deviceId = content.substring(content.length()-17,content.length()-11);
                 String terminalId = "";
-                if (content != null) terminalId = content.substring(content.length() - 11);
+                if (content != null && content.length() > 11) terminalId = content.substring(content.length() - 11);
 //                if (content != null) terminalId = content;
                 Intent intent = new Intent(QRCodeActivity.this, ResultActivity.class);
-                intent.putExtra(com.example.demo.network.Constant.THREE_ID, content);
+                intent.putExtra(com.example.demo.network.Constant.THREE_ID, content .substring(0,7));
                 intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID, mProductType);
                 intent.putExtra(com.example.demo.network.Constant.TERMINAL_ID, terminalId);
                 intent.putExtra(com.example.demo.network.Constant.PRODUCT_ID, mProductId);
