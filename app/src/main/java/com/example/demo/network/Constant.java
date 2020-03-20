@@ -42,6 +42,8 @@ public class Constant {
 
     public static final String GET_CONFIG = BASE_URL + "/factoryTerminalInfoRequest";
 
+    public static final String GET_DEVICE_ID = BASE_URL +"/factoryProdectKindRequest";
+
     public static final String ACTION_USB_STATE = "android.hardware.usb.action.USB_STATE";
 
 }

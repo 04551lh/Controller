@@ -12,7 +12,7 @@
     <string name="scan_code">扫码</string>
     <string name="three_c_code">3C认证码</string>
     <string name="device_type">设备型号</string>
-    <string name="terminal_id">终端ID</string>
+    <string name="terminal_id">设备唯一码</string>
     <string name="entry">录入</string>
     <string name="scan_result">扫码结果</string>
     <string name="device_information">设备信息</string>
@@ -26,4 +26,6 @@
     <string name="please_usb_tip">请链接USB，并且打开网络共享~</string>
     <string name="product_type">产品型号</string>
     <string name="please_input_product_type_tip">请输入产品类型~</string>
+    <string name="please_save">请先保存~</string>
+    <string name="double_click_exit">再按一次返回键退出程序</string>
 </resources>

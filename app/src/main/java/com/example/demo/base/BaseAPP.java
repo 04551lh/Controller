@@ -28,7 +28,6 @@ public class BaseAPP extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-//        CrashReport.initCrashReport(getApplicationContext(), "6015c90158", false);
         Bugly.init(getApplicationContext(), "6015c90158", false);
     }
 }

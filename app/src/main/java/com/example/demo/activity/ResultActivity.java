@@ -14,6 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.demo.Bean.ConfigBean;
+import com.example.demo.Bean.DeviceIdBean;
+import com.example.demo.Bean.ResponseBean;
 import com.example.demo.Bean.SucceedBean;
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
@@ -34,6 +36,7 @@ public class ResultActivity extends BaseActivity implements MyException {
 
     //USB
     private BroadcastReceiver mReceiver;
+    private DeviceIdBean mDeviceIdBean;
 
     private boolean mConnected = false;
     private boolean mConfigured = false;
@@ -79,6 +82,14 @@ public class ResultActivity extends BaseActivity implements MyException {
         registerReceiver(mReceiver, mIntentFilter);
     }
 
+    private String getDeviceId(){
+        String response = mOkHttpHelper.post(Constant.GET_DEVICE_ID, "");
+        mDeviceIdBean = new Gson().fromJson(response, DeviceIdBean.class);
+        if(mDeviceIdBean == null){finish();return "800";}
+        if(mDeviceIdBean.getStatuesCode() != 0){finish();return "800";}
+        if(mDeviceIdBean.getResult().getProdectKindCode() == null){finish();return "800";}
+        return mDeviceIdBean.getResult().getProdectKindCode().length() > 3 ? "800":mDeviceIdBean.getResult().getProdectKindCode().substring(2);
+    }
 
     private void initData() {
         Bundle bundle = getIntent().getExtras();
@@ -86,10 +97,12 @@ public class ResultActivity extends BaseActivity implements MyException {
         mDeviceType = bundle.getString(Constant.DEIVCE_ID);
         mTerminalId = bundle.getString(Constant.TERMINAL_ID);
         mProductId = bundle.getString(Constant.PRODUCT_ID);
+        String deviceId =  getDeviceId();
         mTvThreeId.setText(mThreeCCode);
         mTvDeviceId.setText(mDeviceType);
-        mTvTerminalId.setText(mTerminalId);
+        mTvTerminalId.setText(String.format("%s%s", deviceId, mTerminalId));
         mTvProductId.setText(mProductId);
+
     }
 
     @Override
@@ -99,10 +112,10 @@ public class ResultActivity extends BaseActivity implements MyException {
             public void onClick(View v) {
                 mTvEntry.setBackground(getResources().getDrawable(R.drawable.hollow_circle));
                 mTvEntry.setTextColor(getResources().getColor(R.color.colorPrimary));
-//                if (!mConfigured || !mConnected) {
-//                    Toast.makeText(ResultActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
+                if (!mConfigured || !mConnected) {
+                    Toast.makeText(ResultActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 String terminalId = mTvTerminalId.getText().toString().trim();
                 ConfigBean configBean = new ConfigBean();
                 configBean.setProducerID(mProductId);
@@ -110,6 +123,7 @@ public class ResultActivity extends BaseActivity implements MyException {
                 configBean.setTerminalId(terminalId);
                 String json = new Gson().toJson(configBean);
                 String response = mOkHttpHelper.post(Constant.UPDATA_CONFIG, json);
+                if(response == null)return;
                 SucceedBean succeedBean = new Gson().fromJson(response, SucceedBean.class);
                 if (succeedBean.getStatuesCode() == 0) {
                     Intent intent = new Intent(ResultActivity.this, QRCodeActivity.class);

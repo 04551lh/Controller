@@ -101,9 +101,9 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
         }
         if (!mProductFragment.isAdded()) {
             String productCoding = mResponseBean.getResult().getProductCoding();
-            if (!productCoding.startsWith("KY")) {
-                productCoding = "KY" + productCoding;
-            }
+//            if (!productCoding.startsWith("KY")) {
+//                productCoding = "KY" + productCoding;
+//            }
             Bundle bundle = new Bundle();
             bundle.putString(com.example.demo.network.Constant.PRODUCT_CODE, productCoding);
             mProductFragment.setArguments(bundle);
@@ -228,8 +228,6 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
                     clickTab(mDateFragment);
                     mTvNext.setText(mReScanning);
                 } else if (currentFragment instanceof DateFragment) {
-//                    Intent openCameraIntent = new Intent(QRCodeActivity.this, CaptureActivity.class);
-//                    startActivityForResult(openCameraIntent, 0);
                     Intent intent = new Intent(QRCodeActivity.this, CaptureActivity.class);
                     ZxingConfig config = new ZxingConfig();
                     config.setPlayBeep(true);//是否播放扫描声音 默认为true
@@ -252,12 +250,9 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
         // 扫描二维码/条码回传
         if (requestCode == 0 && resultCode == RESULT_OK) {
             if (data != null) {
-//                String content = data.getStringExtra(Constant.CODED_CONTENT);
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
-//                String deviceId = content.substring(content.length()-17,content.length()-11);
                 String terminalId = "";
                 if (content != null && content.length() > 11) terminalId = content.substring(content.length() - 11);
-//                if (content != null) terminalId = content;
                 Intent intent = new Intent(QRCodeActivity.this, ResultActivity.class);
                 intent.putExtra(com.example.demo.network.Constant.THREE_ID, content .substring(0,7));
                 intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID, mProductType);

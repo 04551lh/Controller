@@ -50,4 +50,14 @@ public class ConfigBean {
     public void setTerminalId(String terminalId) {
         this.terminalId = terminalId;
     }
+
+    @Override
+    public String toString() {
+        return "ConfigBean{" +
+                "threeCCode='" + threeCCode + '\'' +
+                ", terminalModel='" + terminalModel + '\'' +
+                ", producerID='" + producerID + '\'' +
+                ", terminalId='" + terminalId + '\'' +
+                '}';
+    }
 }

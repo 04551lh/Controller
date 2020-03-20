@@ -82,10 +82,10 @@ public class OkHttpHelper {
         }
         catch (SocketTimeoutException e) {
             Log.i(TAG, e.toString());
-            myException.show("网络异常，请重新再试~");
+            myException.show("网络异常，请重新打开USB网络共享再试~");
         } catch (SocketException e) {
             Log.i(TAG, e.toString());
-            myException.show("网络异常，请重新再试~");
+            myException.show("网络异常，请重新打开USB网络共享再试~");
         }
         catch (IOException e) {
             Log.i(TAG, e.toString());

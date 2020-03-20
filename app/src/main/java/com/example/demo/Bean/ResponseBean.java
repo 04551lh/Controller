@@ -15,6 +15,14 @@ public class ResponseBean {
     private int StatuesCode;
     private ResultBean Result;
 
+    @Override
+    public String toString() {
+        return "ResponseBean{" +
+                "StatuesCode=" + StatuesCode +
+                ", Result=" + Result +
+                '}';
+    }
+
     public int getStatuesCode() {
         return StatuesCode;
     }
