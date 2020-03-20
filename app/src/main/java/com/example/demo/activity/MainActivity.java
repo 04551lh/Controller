@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
-import com.example.demo.utils.NetUtil;
 import com.example.demo.utils.SharedPreferencesHelper;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
@@ -30,8 +29,6 @@ import com.yzq.zxinglibrary.common.Constant;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
-
-import static com.example.demo.utils.NetUtil.NETWORK_NONE;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener, TextWatcher {
 
@@ -298,5 +295,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         if (TextUtils.isEmpty(s)) {
             mIsSave = false;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
     }
 }
