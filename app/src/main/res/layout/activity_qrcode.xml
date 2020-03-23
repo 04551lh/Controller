@@ -38,7 +38,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/product_code" />
+            android:text="@string/terminal_id" />
 
         <TextView
             android:id="@+id/tv_date_code"

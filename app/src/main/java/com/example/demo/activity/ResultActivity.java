@@ -23,6 +23,9 @@ import com.example.demo.network.Constant;
 import com.example.demo.network.OkHttpHelper;
 import com.example.demo.utils.MyException;
 import com.google.gson.Gson;
+
+import java.text.DecimalFormat;
+
 public class ResultActivity extends BaseActivity implements MyException {
 
     private TextView mTvThreeId;
@@ -85,10 +88,13 @@ public class ResultActivity extends BaseActivity implements MyException {
     private String getDeviceId(){
         String response = mOkHttpHelper.post(Constant.GET_DEVICE_ID, "");
         mDeviceIdBean = new Gson().fromJson(response, DeviceIdBean.class);
-        if(mDeviceIdBean == null){finish();return "800";}
-        if(mDeviceIdBean.getStatuesCode() != 0){finish();return "800";}
-        if(mDeviceIdBean.getResult().getProdectKindCode() == null){finish();return "800";}
-        return mDeviceIdBean.getResult().getProdectKindCode().length() > 3 ? "800":mDeviceIdBean.getResult().getProdectKindCode().substring(2);
+        if(mDeviceIdBean == null){finish();return "0800";}
+        if(mDeviceIdBean.getStatuesCode() != 0){finish();return "0800";}
+        if(mDeviceIdBean.getResult().getProdectKindCode() == null){finish();return "0800";}
+        String productKindCode= mDeviceIdBean.getResult().getProdectKindCode().substring(2);
+        DecimalFormat decimalFormat =new DecimalFormat("0000");
+        String productCode=decimalFormat.format(Integer.parseInt(productKindCode));
+        return productCode;
     }
 
     private void initData() {
