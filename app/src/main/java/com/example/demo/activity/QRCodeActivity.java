@@ -252,13 +252,17 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
             if (data != null) {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
                 String terminalId = "";
+                String date = "";
                 if (content != null && content.length() > 8) terminalId = content.substring(content.length() - 8);
+                if (content != null && content.length() > 11) date = content.substring(content.length() - 11,content.length()-3);
                 Intent intent = new Intent(QRCodeActivity.this, ResultActivity.class);
                 intent.putExtra(com.example.demo.network.Constant.THREE_ID, content .substring(0,7));
                 intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID, mProductType);
                 intent.putExtra(com.example.demo.network.Constant.TERMINAL_ID, terminalId);
                 intent.putExtra(com.example.demo.network.Constant.PRODUCT_ID, mProductId);
+                intent.putExtra(com.example.demo.network.Constant.DATE_CODE, date);
                 startActivity(intent);
+                finish();
             }
         }
     }

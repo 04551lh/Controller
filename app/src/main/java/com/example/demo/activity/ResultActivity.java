@@ -34,7 +34,7 @@ public class ResultActivity extends BaseActivity implements MyException {
     private TextView mTvProductId;
     private TextView mTvEntry;
 
-    private String mProductId, mThreeCCode, mDeviceType, mTerminalId;
+    private String mProductId, mThreeCCode, mDeviceType, mTerminalId,mDate;
     private OkHttpHelper mOkHttpHelper;
 
     //USB
@@ -103,6 +103,7 @@ public class ResultActivity extends BaseActivity implements MyException {
         mDeviceType = bundle.getString(Constant.DEIVCE_ID);
         mTerminalId = bundle.getString(Constant.TERMINAL_ID);
         mProductId = bundle.getString(Constant.PRODUCT_ID);
+        mDate = bundle.getString(Constant.DATE_CODE);
         String deviceId =  getDeviceId();
         mTvThreeId.setText(mThreeCCode);
         mTvDeviceId.setText(mDeviceType);
@@ -127,6 +128,7 @@ public class ResultActivity extends BaseActivity implements MyException {
                 configBean.setProducerID(mProductId);
                 configBean.setTerminalModel(mDeviceType);
                 configBean.setTerminalId(terminalId);
+                configBean.setManufactureDate(mDate);
                 String json = new Gson().toJson(configBean);
                 String response = mOkHttpHelper.post(Constant.UPDATA_CONFIG, json);
                 if(response == null)return;

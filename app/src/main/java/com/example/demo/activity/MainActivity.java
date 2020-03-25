@@ -103,14 +103,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             if (data != null) {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
                 String terminalId = "";
-                if (content != null && content.length() > 8)
-                    terminalId = content.substring(content.length() - 8);
+                String date = "";
+                int length = content.length();
+                if (content != null &&length > 8)
+                    terminalId = content.substring(length- 8);
+
+                if (content != null && length > 8)
+                    date = content.substring(length - 11,length -3);
                 String mProductId = mEtProductId.getText().toString().trim();
                 String mProductType = mEtProductType.getText().toString().trim();
                 Intent intent = new Intent(MainActivity.this, ResultActivity.class);
                 intent.putExtra(com.example.demo.network.Constant.THREE_ID, content.substring(0, 7));
                 intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID, mProductType);
                 intent.putExtra(com.example.demo.network.Constant.TERMINAL_ID, terminalId);
+                intent.putExtra(com.example.demo.network.Constant.DATE_CODE, date);
                 intent.putExtra(com.example.demo.network.Constant.PRODUCT_ID, mProductId);
                 startActivity(intent);
             }

@@ -18,6 +18,7 @@ public class ConfigBean {
     private String terminalModel;
     private String producerID;
     private String terminalId;
+    private String manufactureDate;
 
     public String getThreeCCode() {
         return threeCCode;
@@ -59,5 +60,13 @@ public class ConfigBean {
                 ", producerID='" + producerID + '\'' +
                 ", terminalId='" + terminalId + '\'' +
                 '}';
+    }
+
+    public String getManufactureDate() {
+        return manufactureDate;
+    }
+
+    public void setManufactureDate(String manufactureDate) {
+        this.manufactureDate = manufactureDate;
     }
 }
