@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -152,5 +153,12 @@ public class ResultActivity extends BaseActivity implements MyException {
     @Override
     public void show(String str) {
         Toast.makeText(ResultActivity.this, str, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void initUsb() {
+        if (!ismConnected() || !ismConfigured()) {
+            Toast.makeText(ResultActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
+        }
     }
 }

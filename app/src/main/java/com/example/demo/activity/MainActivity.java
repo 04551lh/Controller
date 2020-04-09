@@ -13,9 +13,9 @@ import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +32,7 @@ import androidx.core.app.ActivityCompat;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener, TextWatcher {
 
+    private ImageView mIvKy800;
     private EditText mEtProductId;
     private EditText mEtProductType;
     private TextView mTvSave;
@@ -61,6 +62,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     public void initViews() {
         sharedPreferencesHelper = new SharedPreferencesHelper(this);
+        mIvKy800 = findViewById(R.id.iv_ky_800);
         mEtProductId = findViewById(R.id.et_product_id);
         mEtProductType = findViewById(R.id.et_product_type);
         mTvSave = findViewById(R.id.tv_save);
@@ -89,6 +91,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public void setListener() {
+        mIvKy800.setOnClickListener(this);
         mTvSave.setOnClickListener(this);
         mTvEdit.setOnClickListener(this);
         mTvScan.setOnClickListener(this);
@@ -127,6 +130,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.iv_ky_800:
+                finish();
+                break;
             case R.id.tv_edit:
                 if (!mIsSave) {
                     Toast.makeText(MainActivity.this, R.string.please_save, Toast.LENGTH_SHORT).show();
@@ -264,28 +270,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
     }
 
-    // 退出时间
-    private long currentBackPressedTime = 0;
-    // 退出间隔
-    private static final int BACK_PRESSED_INTERVAL = 2000;
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            if (keyCode == KeyEvent.KEYCODE_BACK) {
-                if (System.currentTimeMillis() - currentBackPressedTime > BACK_PRESSED_INTERVAL) {
-                    currentBackPressedTime = System.currentTimeMillis();
-                    Toast.makeText(this, R.string.double_click_exit, Toast.LENGTH_SHORT).show();
-                } else {
-                    // 退出
-                    finish();
-                    return true;
-                }
-            }
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -307,5 +291,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mReceiver);
+    }
+
+    @Override
+    public void initUsb() {
+        if (!ismConnected() || !ismConfigured()) {
+            Toast.makeText(MainActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
+        }
     }
 }

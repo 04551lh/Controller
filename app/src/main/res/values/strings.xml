@@ -3,7 +3,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="ky_assistant">开易贴牌助手</string>
+    <string name="ky_assistant">开易产线助手</string>
     <string name="product_id">厂商ID</string>
     <string name="please_input">请输入</string>
     <string name="edit">修改</string>
@@ -28,4 +28,12 @@
     <string name="please_input_product_type_tip">请输入产品类型~</string>
     <string name="please_save">请先保存~</string>
     <string name="double_click_exit">再按一次返回键退出程序</string>
+    <string name="standard_machine">部标机</string>
+    <string name="non_standard_machine">非部标</string>
+    <string name="scan_results">扫描结果</string>
+    <string name="rescan">重新扫描</string>
+    <string name="entry_success">录入成功</string>
+    <string name="entry_fail">录入失败</string>
+    <string name="device_not_responding">\n原因：设备无响应</string>
+    <string name="code_error">\n原因：设备唯一码格式错误</string>
 </resources>

@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.demo.Bean.ResponseBean;
 import com.example.demo.R;
@@ -116,7 +117,7 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
                 Date date1 = null;
                 try {
                     date1 = format.parse(date);
-                    SimpleDateFormat format1 = new SimpleDateFormat("yyyy.MM.dd");
+                    SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
                     date = format1.format(date1);
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -264,6 +265,13 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
                 startActivity(intent);
                 finish();
             }
+        }
+    }
+
+    @Override
+    public void initUsb() {
+        if (!ismConnected() || !ismConfigured()) {
+            Toast.makeText(QRCodeActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
         }
     }
 }

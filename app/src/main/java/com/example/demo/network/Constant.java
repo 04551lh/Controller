@@ -27,8 +27,6 @@ public class Constant {
     //日期编码
     public final static String DATE_CODE = "date";
 
-
-
     //基础URL
     public static final String WIFI_SERVER_IP_ADDRESS = "192.168.1.1:8000";
 
@@ -36,7 +34,7 @@ public class Constant {
 
     public static final String USB_SERVER_IP_ADDRESS = "192.168.42.254:8000";
 
-    public static final String BASE_URL = "http://"+ USB_SERVER_IP_ADDRESS;
+    public static final String BASE_URL = "http://"+ WIFI_SERVER_IP_ADDRESS1;
 
     public static final String UPDATA_CONFIG = BASE_URL + "/factoryTerminalInfoConfig";
 
