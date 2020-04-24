@@ -19,26 +19,28 @@ import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
 import com.example.demo.network.OkHttpHelper;
 import com.example.demo.utils.BaseDialog;
-import com.example.demo.utils.DefaultDialog;
 import com.example.demo.utils.MyException;
 import com.google.gson.Gson;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
-public class DeviceCodeActivity extends BaseActivity implements View.OnClickListener, MyException, DefaultDialog.OnCenterItemClickListener {
+public class DeviceCodeActivity extends BaseActivity implements View.OnClickListener, MyException {
 
     private final static String TAG = "DeviceCodeActivity";
-    private final static int success = 0;
-    private final static int fail = 1;
-    private final static int code = 2;
+    private final static int arrow = 0x001;
+    private final static int reentry = 0x002;
+
     private ImageView mIvScanResults;
     private TextView mTvDeviceCode;
     private TextView mTvEntry;
     private TextView mTvRescan;
+    private TextView mTvHttpTips;
+    private TextView mTvEntrySuccess;
     private String mTerminalId;
     private OkHttpHelper mOkHttpHelper;
     private BaseDialog mBaseDialog;
+    private int requestCodeFlag;
 
     @Override
     public int getLayoutResId() {
@@ -51,6 +53,8 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
         mTvDeviceCode = findViewById(R.id.tv_device_code);
         mTvEntry = findViewById(R.id.tv_entry);
         mTvRescan = findViewById(R.id.tv_rescan);
+        mTvHttpTips = findViewById(R.id.tv_http_tips);
+        mTvEntrySuccess = findViewById(R.id.tv_entry_success);
         mTerminalId = getIntent().getExtras().getString(com.example.demo.network.Constant.TERMINAL_ID,"");
         mTvDeviceCode.setText(mTerminalId);
         if (android.os.Build.VERSION.SDK_INT > 9) {
@@ -116,6 +120,13 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG,"onResume");
+
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 0 && grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -145,6 +156,9 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
                 mTerminalId = content;
                 mTvDeviceCode.setText(content);
+                mTvRescan.setVisibility(View.GONE);
+                mTvEntry.setVisibility(View.VISIBLE);
+                mTvHttpTips.setVisibility(View.GONE);
             }
         }
     }
@@ -154,6 +168,7 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
     public void initUsb() {
         if (!ismConnected() || !ismConfigured()) {
             Toast.makeText(DeviceCodeActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
@@ -164,18 +179,29 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
      */
     @Override
     public void onClick(View v) {
-        int flag;
         switch (v.getId()) {
             case R.id.iv_scan_results:
-                finish();
+                setCameraManifest();
+                requestCodeFlag = arrow;
                 break;
             case R.id.tv_entry:
                 //todo
+                if (!ismConnected() || !ismConfigured()) {
+                    mTvHttpTips.setText(String.format("%s%s", getString(R.string.entry_fail), getString(R.string.device_not_responding)));
+                    return;
+                }
+
                 if(mTerminalId.length() != 12){
-                    flag = code;
+                    mTvEntrySuccess.setBackgroundResource(R.mipmap.entry_fail_icon);
+                    mTvHttpTips.setText(String.format("%s%s", getString(R.string.entry_fail), getString(R.string.code_error)));
+                    mTvRescan.setVisibility(View.VISIBLE);
                 }
                 Log.i(TAG, "entry");
                 mBaseDialog.show();
+//                mTvHttpTips.setVisibility(View.VISIBLE);
+//                mTvHttpTips.setText(String.format("%s%s", getString(R.string.entry_fail), getString(R.string.device_not_responding)));
+//                mTvRescan.setVisibility(View.VISIBLE);
+
                 ConfigBean configBean = new ConfigBean();
                 configBean.setProducerID("");
                 configBean.setTerminalModel("");
@@ -187,12 +213,14 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
                 SucceedBean succeedBean = new Gson().fromJson(response, SucceedBean.class);
                 if (succeedBean.getStatuesCode() == 0) {
                     mBaseDialog.dismiss();
-                    flag = success;
+                    mTvEntry.setVisibility(View.GONE);
+                    mTvHttpTips.setVisibility(View.VISIBLE);
+                    mTvHttpTips.setText(getString(R.string.entry_success));
                 }else{
                     mBaseDialog.dismiss();
-                    flag = fail;
+                    mTvHttpTips.setText(String.format("%s%s", getString(R.string.entry_fail), getString(R.string.device_not_responding)));
+                    mTvRescan.setVisibility(View.VISIBLE);
                 }
-                initConfirm(flag);
                 break;
             case R.id.tv_rescan:
                 if (!ismConnected() || !ismConfigured()) {
@@ -200,6 +228,7 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
                     return;
                 }
                 setCameraManifest();
+                requestCodeFlag = reentry;
                 break;
         }
     }
@@ -210,26 +239,4 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
         Toast.makeText(DeviceCodeActivity.this, str, Toast.LENGTH_SHORT).show();
     }
 
-
-    private void initConfirm(int flag){
-        DefaultDialog defaultDialog = new DefaultDialog(DeviceCodeActivity.this);
-        switch (flag){
-            case success:
-                defaultDialog.setTitle(getString(R.string.entry_success));
-                break;
-            case fail:
-                defaultDialog.setTitle(String.format("%s%s", getString(R.string.entry_fail), getString(R.string.device_not_responding)));
-                break;
-            case code:
-                defaultDialog.setTitle(String.format("%s%s", getString(R.string.entry_fail), getString(R.string.code_error)));
-                break;
-        }
-        defaultDialog.setOnCenterItemClickListener(this);
-        defaultDialog.show();
-    }
-
-    @Override
-    public void OnCenterItemClick(DefaultDialog dialog, View view) {
-
-    }
 }

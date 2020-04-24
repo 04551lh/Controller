@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_background"
     tools:context=".activity.HomePageActivity">
 
     <TextView
@@ -11,64 +12,69 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:background="@android:color/white"
         android:padding="@dimen/dp_16"
         android:text="@string/app_name"
-        android:textColor="@color/font_333"
+        android:textColor="@color/font"
         android:textSize="@dimen/sp_16"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:padding="@dimen/dp_16"
+        android:id="@+id/iv_settings"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@mipmap/settings"
+        android:layout_height="wrap_content"/>
+
+
+
+
     <View
+        android:layout_marginTop="@dimen/dp_14"
         android:id="@+id/view_home_page"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/colorGray"
+        android:visibility="gone"
+        android:background="@color/line_bg"
         app:layout_constraintTop_toBottomOf="@+id/tv_home_page" />
 
     <TextView
-        android:layout_marginStart="@dimen/dp_16"
-        android:layout_marginEnd="@dimen/dp_16"
+        android:layout_marginTop="@dimen/dp_14"
+        android:paddingStart="@dimen/dp_16"
+        android:paddingTop="54dp"
+        android:paddingBottom="54dp"
+        android:paddingEnd="@dimen/dp_16"
         android:id="@+id/tv_standard_machine"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_45"
-        android:drawableLeft="@drawable/ic_check_black_24dp"
-        android:drawableRight="@drawable/ic_chevron_right_black_24dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/view_home_page"
+        android:drawableLeft="@mipmap/select_icon"
+        android:drawableRight="@mipmap/arrow_right_icon"
         android:gravity="center"
         android:text="@string/standard_machine"
-        android:textColor="@color/font_333"
-        android:textSize="@dimen/sp_16"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <View
-        android:layout_marginStart="@dimen/dp_16"
-        android:layout_marginEnd="@dimen/dp_16"
-        android:id="@+id/view_standard_machine"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorGray"
-        app:layout_constraintTop_toBottomOf="@+id/tv_standard_machine" />
+        android:background="@android:color/white"
+        android:textColor="@color/font"
+        android:textSize="@dimen/sp_16" />
 
     <TextView
-        android:layout_marginStart="@dimen/dp_16"
-        android:layout_marginEnd="@dimen/dp_16"
+        android:paddingTop="54dp"
+        android:paddingBottom="54dp"
+        android:layout_marginTop="@dimen/dp_10"
+        android:paddingStart="@dimen/dp_16"
+        android:paddingEnd="@dimen/dp_16"
         android:id="@+id/tv_non_standard_machine"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_45"
-        android:drawableRight="@drawable/ic_chevron_right_black_24dp"
+        android:layout_height="wrap_content"
+        android:drawableRight="@mipmap/arrow_right_icon"
         android:drawableLeft="@drawable/ic_check_box_black_24dp"
         android:gravity="center"
         android:text="@string/non_standard_machine"
-        android:textColor="@color/font_333"
+        android:background="@android:color/white"
+        android:textColor="@color/font"
         android:textSize="@dimen/sp_16"
-        app:layout_constraintTop_toBottomOf="@+id/view_standard_machine" />
-
-    <View
-        android:layout_marginStart="@dimen/dp_16"
-        android:layout_marginEnd="@dimen/dp_16"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorGray"
-        app:layout_constraintTop_toBottomOf="@+id/tv_non_standard_machine" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_standard_machine" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

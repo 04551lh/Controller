@@ -43,7 +43,7 @@ public abstract class BaseActivity extends AppCompatActivity implements IUSBStat
         setContentView(getLayoutResId());
         initViews();
         setListener();
-        initUSB();
+//        initUSB();
     }
 
     public abstract int getLayoutResId();
@@ -77,7 +77,7 @@ public abstract class BaseActivity extends AppCompatActivity implements IUSBStat
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mReceiver);
+//        unregisterReceiver(mReceiver);
     }
 
 

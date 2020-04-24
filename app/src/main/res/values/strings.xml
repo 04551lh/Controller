@@ -31,9 +31,10 @@
     <string name="standard_machine">部标机</string>
     <string name="non_standard_machine">非部标</string>
     <string name="scan_results">扫描结果</string>
-    <string name="rescan">重新扫描</string>
+    <string name="rescan">请重新扫码</string>
     <string name="entry_success">录入成功</string>
     <string name="entry_fail">录入失败</string>
     <string name="device_not_responding">\n原因：设备无响应</string>
     <string name="code_error">\n原因：设备唯一码格式错误</string>
+    <string name="settings">设置</string>
 </resources>

@@ -4,8 +4,12 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="colorGray">#ff999999</color>
+    <color name="font">#0D0D0D</color>
     <color name="font_333">#333333</color>
     <color name="font_666">#666666</color>
     <color name="app_background">#EEEEEE</color>
     <color name="primary">#5677FC</color>
+    <color name="app_bg">#FBFBFB</color>
+    <color name="line_bg">#FFFFFF</color>
+    <color name="color_reentry">#F1962E</color>
 </resources>

@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +28,7 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
     private Drawable mNoSelectDrawable;
     private Drawable mArrowDrawable;
     private Intent mIntent;
+    private ImageView mIvSettings;
     // 退出时间
     private long currentBackPressedTime = 0;
     // 退出间隔
@@ -41,9 +43,10 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
     public void initViews() {
         mTvStandardMachine = findViewById(R.id.tv_standard_machine);
         mTvNonStandardMachine = findViewById(R.id.tv_non_standard_machine);
-        mSelectDrawable = getResources().getDrawable(R.drawable.ic_check_black_24dp);
+        mIvSettings = findViewById(R.id.iv_settings);
+        mSelectDrawable = getResources().getDrawable(R.mipmap.select_icon);
         mNoSelectDrawable = getResources().getDrawable(R.drawable.ic_check_box_black_24dp);
-        mArrowDrawable = getResources().getDrawable(R.drawable.ic_chevron_right_black_24dp);
+        mArrowDrawable = getResources().getDrawable(R.mipmap.arrow_right_icon);
         mSelectDrawable.setBounds(0, 0, mSelectDrawable.getMinimumWidth(), mSelectDrawable.getMinimumHeight());
         mNoSelectDrawable.setBounds(0, 0, mNoSelectDrawable.getMinimumWidth(), mNoSelectDrawable.getMinimumHeight());
         mArrowDrawable.setBounds(0, 0, mArrowDrawable.getMinimumWidth(), mArrowDrawable.getMinimumHeight());
@@ -53,6 +56,7 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
     public void setListener() {
         mTvStandardMachine.setOnClickListener(this);
         mTvNonStandardMachine.setOnClickListener(this);
+        mIvSettings.setOnClickListener(this);
     }
 
     /**
@@ -72,11 +76,11 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
             case R.id.tv_non_standard_machine:
                 mTvStandardMachine.setCompoundDrawables(mNoSelectDrawable, null, mArrowDrawable, null);
                 mTvNonStandardMachine.setCompoundDrawables(mSelectDrawable, null, mArrowDrawable, null);
-                if (!ismConnected() || !ismConfigured()) {
-                    Toast.makeText(HomePageActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 setCameraManifest();
+                break;
+            case R.id.iv_settings:
+                mIntent = new Intent(HomePageActivity.this, SettingsActivity.class);
+                startActivity(mIntent);
                 break;
         }
     }
@@ -180,7 +184,7 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
                 }
             }
         }
-        return super.onKeyDown(keyCode, event);
+        return false;
     }
 
     @Override

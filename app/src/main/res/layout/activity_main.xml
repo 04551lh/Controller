@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:padding = "@dimen/dp_16"
             android:id="@+id/iv_ky_800"
-            android:src="@drawable/ic_check_black_24dp"/>
+            android:src="@mipmap/arrow_left_icon"/>
         <TextView
             android:layout_width="match_parent"
             android:textColor="@android:color/black"

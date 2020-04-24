@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.SettingsActivity">
+
+    <LinearLayout
+        android:id="@+id/ll_title"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding = "@dimen/dp_16"
+            android:id="@+id/iv_settings_back"
+            android:src="@mipmap/arrow_left_icon"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:text="@string/settings"
+            android:gravity="center"
+            android:paddingTop="16dp"
+            android:textStyle="bold"
+            android:paddingBottom="16dp"
+            android:layout_height="wrap_content"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding = "@dimen/dp_16"
+            android:id="@+id/iv_refresh"
+            android:src="@mipmap/refresh_icon"/>
+    </LinearLayout>
+
+    <View
+        app:layout_constraintTop_toBottomOf="@+id/ll_title"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:id="@+id/view_title"
+        android:background="@color/app_background"/>
+
+    <LinearLayout
+        android:layout_marginTop="@dimen/dp_40"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/ll_plus_speed"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_title"
+        android:background="@android:color/white">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:paddingLeft="@dimen/dp_21"
+            android:paddingTop="@dimen/dp_8"
+            android:paddingBottom="@dimen/dp_7"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/sp_16"
+            android:textColor="@color/font"
+            android:text="脉冲系数"/>
+
+        <EditText
+            android:layout_width="@dimen/dp_60"
+            android:maxLength="3"
+            android:inputType="number"
+            android:id="@+id/et_plus_speed"
+            android:gravity="center"
+            android:background="@drawable/input_settings_style"
+            android:layout_height="@dimen/dp_30"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/sp_16"
+            android:textColor="@color/font_333"
+            android:text="×100"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_20" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_save"
+        android:layout_width="@dimen/dp_60"
+        android:layout_height="@dimen/dp_60"
+        android:layout_margin="@dimen/dp_16"
+        android:background="@drawable/solid_round"
+        android:gravity="center"
+        android:text="@string/save"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/sp_16"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
