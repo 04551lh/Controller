@@ -21,8 +21,9 @@ import com.yzq.zxinglibrary.common.Constant;
  */
 public class CommonMethod {
 
+    private final static int request_code = 0;
     //扫描
-    public static void StartToCaptureActivity(Activity activity){
+    public static void StartActivityForResultCapture(Activity activity){
         Intent intent = new Intent(activity, CaptureActivity.class);
         /*ZxingConfig是配置类
          *可以设置是否显示底部布局，闪光灯，相册，
@@ -39,6 +40,6 @@ public class CommonMethod {
         config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
         config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
         intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-        activity.startActivityForResult(intent, 0);
+        activity.startActivityForResult(intent, request_code);
     }
 }

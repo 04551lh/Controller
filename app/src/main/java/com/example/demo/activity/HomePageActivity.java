@@ -13,8 +13,7 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
-import com.yzq.zxinglibrary.android.CaptureActivity;
-import com.yzq.zxinglibrary.bean.ZxingConfig;
+import com.example.demo.utils.CommonMethod;
 import com.yzq.zxinglibrary.common.Constant;
 
 public class HomePageActivity extends BaseActivity implements View.OnClickListener {
@@ -25,7 +24,6 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
     private Drawable mSelectDrawable;
     private Drawable mNoSelectDrawable;
     private Drawable mArrowDrawable;
-    private Intent mIntent;
     private ImageView mIvSettings;
     // 退出时间
     private long currentBackPressedTime = 0;
@@ -66,10 +64,10 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_standard_machine:
-                mIntent = new Intent(HomePageActivity.this, MainActivity.class);
+                Intent mainIntent = new Intent(HomePageActivity.this, MainActivity.class);
                 mTvStandardMachine.setCompoundDrawables(mSelectDrawable, null, mArrowDrawable, null);
                 mTvNonStandardMachine.setCompoundDrawables(mNoSelectDrawable, null, mArrowDrawable, null);
-                startActivity(mIntent);
+                startActivity(mainIntent);
                 break;
             case R.id.tv_non_standard_machine:
                 mTvStandardMachine.setCompoundDrawables(mNoSelectDrawable, null, mArrowDrawable, null);
@@ -77,8 +75,8 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
                 setCameraManifest();
                 break;
             case R.id.iv_settings:
-                mIntent = new Intent(HomePageActivity.this, SettingsActivity.class);
-                startActivity(mIntent);
+                Intent settingIntent = new Intent(HomePageActivity.this, SettingsActivity.class);
+                startActivity(settingIntent);
                 break;
         }
     }
@@ -86,46 +84,13 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
     private void setCameraManifest() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(HomePageActivity.this, "需要动态获取权限", Toast.LENGTH_SHORT);
+                Toast.makeText(HomePageActivity.this, "需要动态获取权限", Toast.LENGTH_SHORT).show();
                 ActivityCompat.requestPermissions(HomePageActivity.this, new String[]{Manifest.permission.CAMERA}, 0);
             } else {
-                Toast.makeText(HomePageActivity.this, "不需要动态获取权限", Toast.LENGTH_SHORT);
-                Intent intent = new Intent(HomePageActivity.this, CaptureActivity.class);
-                /*ZxingConfig是配置类
-                 *可以设置是否显示底部布局，闪光灯，相册，
-                 * 是否播放提示音  震动
-                 * 设置扫描框颜色等
-                 * 也可以不传这个参数
-                 * */
-                ZxingConfig config = new ZxingConfig();
-                config.setPlayBeep(true);//是否播放扫描声音 默认为true
-                config.setShake(true);//是否震动  默认为true
-                config.setDecodeBarCode(true);//是否扫描条形码 默认为true
-//                config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
-                config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-                config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-                config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-                intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-                startActivityForResult(intent, 0);
+                CommonMethod.StartActivityForResultCapture(HomePageActivity.this);
             }
         } else {
-            Intent intent = new Intent(HomePageActivity.this, CaptureActivity.class);
-            /*ZxingConfig是配置类
-             *可以设置是否显示底部布局，闪光灯，相册，
-             * 是否播放提示音  震动
-             * 设置扫描框颜色等
-             * 也可以不传这个参数
-             * */
-            ZxingConfig config = new ZxingConfig();
-            config.setPlayBeep(true);//是否播放扫描声音 默认为true
-            config.setShake(true);//是否震动  默认为true
-            config.setDecodeBarCode(true);//是否扫描条形码 默认为true
-//                config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
-            config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-            config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-            config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-            intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-            startActivityForResult(intent, 0);
+            CommonMethod.StartActivityForResultCapture(HomePageActivity.this);
         }
     }
 
@@ -134,17 +99,7 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
         if (requestCode == 0 && grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    Intent intent = new Intent(HomePageActivity.this, CaptureActivity.class);
-                    ZxingConfig config = new ZxingConfig();
-                    config.setPlayBeep(true);//是否播放扫描声音 默认为true
-                    config.setShake(true);//是否震动  默认为true
-                    config.setDecodeBarCode(true);//是否扫描条形码 默认为true
-                    //                config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
-                    config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-                    config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-                    config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-                    intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-                    startActivityForResult(intent, 0);
+                    CommonMethod.StartActivityForResultCapture(HomePageActivity.this);
                 }
             }
         }

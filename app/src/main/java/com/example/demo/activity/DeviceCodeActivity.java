@@ -14,17 +14,20 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import com.example.demo.Bean.ConfigBean;
 import com.example.demo.Bean.SucceedBean;
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
 import com.example.demo.network.OkHttpHelper;
+import com.example.demo.utils.CommonMethod;
 import com.example.demo.utils.MyException;
 import com.google.gson.Gson;
-import com.yzq.zxinglibrary.android.CaptureActivity;
-import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
+
+import java.util.Objects;
 
 public class DeviceCodeActivity extends BaseActivity implements View.OnClickListener, MyException {
 
@@ -47,6 +50,7 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
         return R.layout.activity_device_code;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void initViews() {
         initUSB();
@@ -56,12 +60,10 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
         mTvRescan = findViewById(R.id.tv_rescan);
         mTvHttpTips = findViewById(R.id.tv_http_tips);
         mTvEntrySuccess = findViewById(R.id.tv_entry_success);
-        mTerminalId = getIntent().getExtras().getString(com.example.demo.network.Constant.TERMINAL_ID, "");
+        mTerminalId = Objects.requireNonNull(getIntent().getExtras()).getString(com.example.demo.network.Constant.TERMINAL_ID, "");
         mTvDeviceCode.setText(mTerminalId);
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         mOkHttpHelper = OkHttpHelper.getInstance();
         mOkHttpHelper.setMyException(this);
     }
@@ -75,46 +77,13 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
     private void setCameraManifest() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(DeviceCodeActivity.this, "需要动态获取权限", Toast.LENGTH_SHORT);
+                Toast.makeText(DeviceCodeActivity.this, "需要动态获取权限", Toast.LENGTH_SHORT).show();
                 ActivityCompat.requestPermissions(DeviceCodeActivity.this, new String[]{Manifest.permission.CAMERA}, 0);
             } else {
-                Toast.makeText(DeviceCodeActivity.this, "不需要动态获取权限", Toast.LENGTH_SHORT);
-                Intent intent = new Intent(DeviceCodeActivity.this, CaptureActivity.class);
-                /*ZxingConfig是配置类
-                 *可以设置是否显示底部布局，闪光灯，相册，
-                 * 是否播放提示音  震动
-                 * 设置扫描框颜色等
-                 * 也可以不传这个参数
-                 * */
-                ZxingConfig config = new ZxingConfig();
-                config.setPlayBeep(true);//是否播放扫描声音 默认为true
-                config.setShake(true);//是否震动  默认为true
-                config.setDecodeBarCode(true);//是否扫描条形码 默认为true
-//                config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
-                config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-                config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-                config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-                intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-                startActivityForResult(intent, 0);
+                CommonMethod.StartActivityForResultCapture(DeviceCodeActivity.this);
             }
         } else {
-            Intent intent = new Intent(DeviceCodeActivity.this, CaptureActivity.class);
-            /*ZxingConfig是配置类
-             *可以设置是否显示底部布局，闪光灯，相册，
-             * 是否播放提示音  震动
-             * 设置扫描框颜色等
-             * 也可以不传这个参数
-             * */
-            ZxingConfig config = new ZxingConfig();
-            config.setPlayBeep(true);//是否播放扫描声音 默认为true
-            config.setShake(true);//是否震动  默认为true
-            config.setDecodeBarCode(true);//是否扫描条形码 默认为true
-//                config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
-            config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-            config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-            config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-            intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-            startActivityForResult(intent, 0);
+            CommonMethod.StartActivityForResultCapture(DeviceCodeActivity.this);
         }
     }
 
@@ -130,17 +99,7 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
         if (requestCode == 0 && grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    Intent intent = new Intent(DeviceCodeActivity.this, CaptureActivity.class);
-                    ZxingConfig config = new ZxingConfig();
-                    config.setPlayBeep(true);//是否播放扫描声音 默认为true
-                    config.setShake(true);//是否震动  默认为true
-                    config.setDecodeBarCode(true);//是否扫描条形码 默认为true
-                    //                config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
-                    config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-                    config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-                    config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-                    intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-                    startActivityForResult(intent, 0);
+                    CommonMethod.StartActivityForResultCapture(DeviceCodeActivity.this);
                 }
             }
         }
@@ -211,16 +170,14 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
                 if (intent.hasExtra(UsbManager.EXTRA_PERMISSION_GRANTED)) {
                     boolean permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
                 }
-                switch (action) {
-                    case com.example.demo.network.Constant.ACTION_USB_STATE:
-                        mConnected = intent.getBooleanExtra("connected", false);
-                        mConfigured = intent.getBooleanExtra("configured", false);
-                        Log.i(TAG,"mConnected :"+mConnected);
-                        Log.i(TAG,"mConnected :"+mConfigured);
-                        if(!mConnected&&!mConfigured){
-                            finish();
-                        }
-                        break;
+                if (com.example.demo.network.Constant.ACTION_USB_STATE.equals(action)) {
+                    mConnected = intent.getBooleanExtra("connected", false);
+                    mConfigured = intent.getBooleanExtra("configured", false);
+                    Log.i(TAG, "mConnected :" + mConnected);
+                    Log.i(TAG, "mConnected :" + mConfigured);
+                    if (!mConnected && !mConfigured) {
+                        finish();
+                    }
                 }
             }
         };

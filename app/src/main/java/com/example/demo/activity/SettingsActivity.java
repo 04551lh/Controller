@@ -18,9 +18,9 @@ import com.example.demo.network.Constant;
 import com.example.demo.network.OkHttpHelper;
 import com.example.demo.utils.MyException;
 import com.google.gson.Gson;
-
 public class SettingsActivity extends BaseActivity implements View.OnClickListener, MyException {
 
+    private final static String TAG = "SettingsActivity";
     private ImageView mIvSettingsBack;
     private ImageView mIvRefresh;
     private EditText mEtPlusSpeed;
@@ -76,6 +76,13 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                     Toast.makeText(SettingsActivity.this, "脉冲系数取值区间0-100～", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                Log.i(TAG,"speed:"+speed);
+                if(mResultBean ==null){
+                    mResultBean = new PlusSpeedBean.ResultBean();
+                }
+                if(mResultBean.getPulseSpeed() == null){
+                    mResultBean.setPulseSpeed(new PlusSpeedBean.ResultBean.PulseSpeedBean());
+                }
                 mResultBean.getPulseSpeed().setPulseCoefficient(speed * 100);
                 onSave();
                 break;
@@ -97,9 +104,8 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         mResultBean.getPulseSpeed().setAutoCalibration(0);
         mResultBean.getSimulateSpeed().setEnable(0);
         mResultBean.getWithGPSSpeedEnable().setEnable(0);
-        Log.i("TAG", "i:" + i);
         mEtPlusSpeed.setText(String.format("%d", i / 100));
-        mEtPlusSpeed.setSelection(String.valueOf(mResultBean.getPulseSpeed().getPulseCoefficient() / 100).length());
+        mEtPlusSpeed.setSelection(String.valueOf(i / 100).length());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -108,9 +114,8 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void onSave() {
-        //todo
         String json = new Gson().toJson(mResultBean);
-        String response = mOkHttpHelper.post(Constant.POST_SPEEDS_DATA, json);
+        String response  = mOkHttpHelper.post(Constant.POST_SPEEDS_DATA, json);
         if (response == null) return;
         SucceedBean succeedBean = new Gson().fromJson(response, SucceedBean.class);
         if (succeedBean.getStatuesCode() == 0) {

@@ -14,14 +14,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
+import com.example.demo.utils.CommonMethod;
 import com.example.demo.utils.SharedPreferencesHelper;
-import com.yzq.zxinglibrary.android.CaptureActivity;
-import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
@@ -35,7 +32,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private TextView mTvEdit;
     private TextView mTvScan;
     private boolean mIsSave;
-    private final static int request_code= 0;
 
     private SharedPreferencesHelper sharedPreferencesHelper;
 
@@ -100,7 +96,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 if (content != null &&length > 8)
                     terminalId = content.substring(length- 8);
 
-                if (content != null && length > 8)
+                if (content != null && length > 11)
                     date = content.substring(length - 11,length -3);
                 String mProductId = mEtProductId.getText().toString().trim();
                 String mProductType = mEtProductType.getText().toString().trim();
@@ -160,10 +156,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     Toast.makeText(MainActivity.this, R.string.please_save, Toast.LENGTH_SHORT).show();
                     return;
                 }
-//                if (!ismConnected() || !ismConfigured()) {
-//                    Toast.makeText(MainActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
-//                   return;
-//                }
                 setCameraManifest();
                 break;
         }
@@ -173,46 +165,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private void setCameraManifest() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(MainActivity.this, "需要动态获取权限", Toast.LENGTH_SHORT);
+                Toast.makeText(MainActivity.this, "需要动态获取权限", Toast.LENGTH_SHORT).show();
                 ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, 0);
             } else {
-                Toast.makeText(MainActivity.this, "不需要动态获取权限", Toast.LENGTH_SHORT);
-                Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
-                /*ZxingConfig是配置类
-                 *可以设置是否显示底部布局，闪光灯，相册，
-                 * 是否播放提示音  震动
-                 * 设置扫描框颜色等
-                 * 也可以不传这个参数
-                 * */
-                ZxingConfig config = new ZxingConfig();
-                config.setPlayBeep(true);//是否播放扫描声音 默认为true
-                config.setShake(true);//是否震动  默认为true
-                config.setDecodeBarCode(true);//是否扫描条形码 默认为true
-//                config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
-                config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-                config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-                config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-                intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-                startActivityForResult(intent, request_code);
+                CommonMethod.StartActivityForResultCapture(MainActivity.this);
             }
         } else {
-            Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
-            /*ZxingConfig是配置类
-             *可以设置是否显示底部布局，闪光灯，相册，
-             * 是否播放提示音  震动
-             * 设置扫描框颜色等
-             * 也可以不传这个参数
-             * */
-            ZxingConfig config = new ZxingConfig();
-            config.setPlayBeep(true);//是否播放扫描声音 默认为true
-            config.setShake(true);//是否震动  默认为true
-            config.setDecodeBarCode(true);//是否扫描条形码 默认为true
-//                config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
-            config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-            config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-            config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-            intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-            startActivityForResult(intent, request_code);
+            CommonMethod.StartActivityForResultCapture(MainActivity.this);
         }
     }
 
@@ -221,17 +180,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == 0 && grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
-                ZxingConfig config = new ZxingConfig();
-                config.setPlayBeep(true);//是否播放扫描声音 默认为true
-                config.setShake(true);//是否震动  默认为true
-                config.setDecodeBarCode(true);//是否扫描条形码 默认为true
-//                config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
-                config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-                config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-                config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-                intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-                startActivityForResult(intent, request_code);
+                CommonMethod.StartActivityForResultCapture(MainActivity.this);
             }
         }
     }
