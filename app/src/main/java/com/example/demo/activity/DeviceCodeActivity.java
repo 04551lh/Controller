@@ -1,8 +1,12 @@
 package com.example.demo.activity;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.hardware.usb.UsbManager;
 import android.os.Build;
 import android.os.StrictMode;
 import android.util.Log;
@@ -10,15 +14,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.core.app.ActivityCompat;
-
 import com.example.demo.Bean.ConfigBean;
 import com.example.demo.Bean.SucceedBean;
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
 import com.example.demo.network.OkHttpHelper;
-import com.example.demo.utils.BaseDialog;
 import com.example.demo.utils.MyException;
 import com.google.gson.Gson;
 import com.yzq.zxinglibrary.android.CaptureActivity;
@@ -28,9 +29,6 @@ import com.yzq.zxinglibrary.common.Constant;
 public class DeviceCodeActivity extends BaseActivity implements View.OnClickListener, MyException {
 
     private final static String TAG = "DeviceCodeActivity";
-    private final static int arrow = 0x001;
-    private final static int reentry = 0x002;
-
     private ImageView mIvScanResults;
     private TextView mTvDeviceCode;
     private TextView mTvEntry;
@@ -39,8 +37,10 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
     private TextView mTvEntrySuccess;
     private String mTerminalId;
     private OkHttpHelper mOkHttpHelper;
-    private BaseDialog mBaseDialog;
-    private int requestCodeFlag;
+    //USB
+    private BroadcastReceiver mReceiver;
+    private boolean mConnected = false;
+    private boolean mConfigured = false;
 
     @Override
     public int getLayoutResId() {
@@ -49,13 +49,14 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
 
     @Override
     public void initViews() {
+        initUSB();
         mIvScanResults = findViewById(R.id.iv_scan_results);
         mTvDeviceCode = findViewById(R.id.tv_device_code);
         mTvEntry = findViewById(R.id.tv_entry);
         mTvRescan = findViewById(R.id.tv_rescan);
         mTvHttpTips = findViewById(R.id.tv_http_tips);
         mTvEntrySuccess = findViewById(R.id.tv_entry_success);
-        mTerminalId = getIntent().getExtras().getString(com.example.demo.network.Constant.TERMINAL_ID,"");
+        mTerminalId = getIntent().getExtras().getString(com.example.demo.network.Constant.TERMINAL_ID, "");
         mTvDeviceCode.setText(mTerminalId);
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -63,9 +64,7 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
         }
         mOkHttpHelper = OkHttpHelper.getInstance();
         mOkHttpHelper.setMyException(this);
-        mBaseDialog = BaseDialog.showDialog(this);
     }
-
     @Override
     public void setListener() {
         mIvScanResults.setOnClickListener(this);
@@ -163,45 +162,23 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
         }
     }
 
-
-    @Override
-    public void initUsb() {
-        if (!ismConnected() || !ismConfigured()) {
-            Toast.makeText(DeviceCodeActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
-            finish();
-        }
-    }
-
-    /**
-     * Called when a view has been clicked.
-     *
-     * @param v The view that was clicked.
-     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_scan_results:
-                setCameraManifest();
-                requestCodeFlag = arrow;
+                if(mTvHttpTips.getVisibility() == View.VISIBLE){
+                    finish();
+                }else{
+                    setCameraManifest();
+                }
                 break;
             case R.id.tv_entry:
-                //todo
-                if (!ismConnected() || !ismConfigured()) {
-                    mTvHttpTips.setText(String.format("%s%s", getString(R.string.entry_fail), getString(R.string.device_not_responding)));
-                    return;
-                }
-
                 if(mTerminalId.length() != 12){
                     mTvEntrySuccess.setBackgroundResource(R.mipmap.entry_fail_icon);
                     mTvHttpTips.setText(String.format("%s%s", getString(R.string.entry_fail), getString(R.string.code_error)));
                     mTvRescan.setVisibility(View.VISIBLE);
                 }
                 Log.i(TAG, "entry");
-                mBaseDialog.show();
-//                mTvHttpTips.setVisibility(View.VISIBLE);
-//                mTvHttpTips.setText(String.format("%s%s", getString(R.string.entry_fail), getString(R.string.device_not_responding)));
-//                mTvRescan.setVisibility(View.VISIBLE);
-
                 ConfigBean configBean = new ConfigBean();
                 configBean.setProducerID("");
                 configBean.setTerminalModel("");
@@ -212,31 +189,56 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
                 if(response == null)return;
                 SucceedBean succeedBean = new Gson().fromJson(response, SucceedBean.class);
                 if (succeedBean.getStatuesCode() == 0) {
-                    mBaseDialog.dismiss();
                     mTvEntry.setVisibility(View.GONE);
                     mTvHttpTips.setVisibility(View.VISIBLE);
                     mTvHttpTips.setText(getString(R.string.entry_success));
                 }else{
-                    mBaseDialog.dismiss();
                     mTvHttpTips.setText(String.format("%s%s", getString(R.string.entry_fail), getString(R.string.device_not_responding)));
                     mTvRescan.setVisibility(View.VISIBLE);
                 }
                 break;
             case R.id.tv_rescan:
-                if (!ismConnected() || !ismConfigured()) {
-                    Toast.makeText(DeviceCodeActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 setCameraManifest();
-                requestCodeFlag = reentry;
                 break;
         }
     }
 
+    private void initUSB() {
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (intent.hasExtra(UsbManager.EXTRA_PERMISSION_GRANTED)) {
+                    boolean permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
+                }
+                switch (action) {
+                    case com.example.demo.network.Constant.ACTION_USB_STATE:
+                        mConnected = intent.getBooleanExtra("connected", false);
+                        mConfigured = intent.getBooleanExtra("configured", false);
+                        Log.i(TAG,"mConnected :"+mConnected);
+                        Log.i(TAG,"mConnected :"+mConfigured);
+                        if(!mConnected&&!mConfigured){
+                            finish();
+                        }
+                        break;
+                }
+            }
+        };
+        IntentFilter mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(com.example.demo.network.Constant.ACTION_USB_STATE);
+        registerReceiver(mReceiver, mIntentFilter);
+    }
 
     @Override
-    public void show(String str) {
+    public void show(int flag,String str) {
         Toast.makeText(DeviceCodeActivity.this, str, Toast.LENGTH_SHORT).show();
     }
 
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
+    }
 }

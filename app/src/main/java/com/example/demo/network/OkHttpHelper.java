@@ -5,6 +5,8 @@ import android.os.Build;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.RequiresApi;
+
 import com.example.demo.utils.MyException;
 
 import java.io.IOException;
@@ -30,20 +32,17 @@ public class OkHttpHelper {
     //网络请求
     private OkHttpClient mOkHttpClient;
 
-    private final static int CONNECT_TIMEOUT = 3;
-    private final static int READ_TIMEOUT = 3;
-    private final static int WRITE_TIMEOUT = 3;
+    private final static int CONNECT_TIMEOUT = 2;
+    private final static int READ_TIMEOUT = 2;
+    private final static int WRITE_TIMEOUT = 2;
+
     private static OkHttpHelper instance = null;
 
-    public MyException getMyException() {
-        return myException;
-    }
+    private MyException myException;
 
     public void setMyException(MyException myException) {
         this.myException = myException;
     }
-
-    private MyException myException;
 
     private OkHttpHelper() {
         mLogging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
@@ -82,16 +81,17 @@ public class OkHttpHelper {
         }
         catch (SocketTimeoutException e) {
             Log.i(TAG, e.toString());
-            myException.show("网络异常，请重新打开USB网络共享再试~");
+            myException.show(0,"网络异常，请检查网络或者重新打开USB网络共享再试~");
         } catch (SocketException e) {
             Log.i(TAG, e.toString());
-            myException.show("网络异常，请重新打开USB网络共享再试~");
+            myException.show(1,"网络异常，请检查网络或者重新打开USB网络共享再试~");
         }
         catch (IOException e) {
             Log.i(TAG, e.toString());
             e.printStackTrace();
-            myException.show(e.toString());
+            myException.show(2,e.toString());
         }
         return null;
     }
+
 }

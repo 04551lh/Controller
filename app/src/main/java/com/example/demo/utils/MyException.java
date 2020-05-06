@@ -7,5 +7,5 @@ package com.example.demo.utils;
  */
 public interface MyException {
 
-    void show(String str);
+    void show(int flag,String str);
 }

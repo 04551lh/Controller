@@ -1,22 +1,13 @@
 package com.example.demo.activity;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.res.Resources;
-import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.demo.Bean.ConfigBean;
 import com.example.demo.Bean.DeviceIdBean;
-import com.example.demo.Bean.ResponseBean;
 import com.example.demo.Bean.SucceedBean;
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
@@ -24,7 +15,6 @@ import com.example.demo.network.Constant;
 import com.example.demo.network.OkHttpHelper;
 import com.example.demo.utils.MyException;
 import com.google.gson.Gson;
-
 import java.text.DecimalFormat;
 
 public class ResultActivity extends BaseActivity implements MyException {
@@ -34,16 +24,9 @@ public class ResultActivity extends BaseActivity implements MyException {
     private TextView mTvTerminalId;
     private TextView mTvProductId;
     private TextView mTvEntry;
-
     private String mProductId, mThreeCCode, mDeviceType, mTerminalId,mDate;
     private OkHttpHelper mOkHttpHelper;
-
-    //USB
-    private BroadcastReceiver mReceiver;
     private DeviceIdBean mDeviceIdBean;
-
-    private boolean mConnected = false;
-    private boolean mConfigured = false;
 
     @Override
     public int getLayoutResId() {
@@ -52,9 +35,10 @@ public class ResultActivity extends BaseActivity implements MyException {
 
     @Override
     public void initViews() {
-        initUSB();
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
         mTvThreeId = findViewById(R.id.tv_three_id);
         mTvDeviceId = findViewById(R.id.tv_device_id);
         mTvTerminalId = findViewById(R.id.tv_terminal_id);
@@ -65,28 +49,7 @@ public class ResultActivity extends BaseActivity implements MyException {
         initData();
     }
 
-    private void initUSB() {
-        mReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (intent.hasExtra(UsbManager.EXTRA_PERMISSION_GRANTED)) {
-                    boolean permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
-                }
-                switch (action) {
-                    case Constant.ACTION_USB_STATE:
-                        mConnected = intent.getBooleanExtra("connected", false);
-                        mConfigured = intent.getBooleanExtra("configured", false);
-                        break;
-                }
-            }
-        };
-        IntentFilter mIntentFilter = new IntentFilter();
-        mIntentFilter.addAction(Constant.ACTION_USB_STATE);
-        registerReceiver(mReceiver, mIntentFilter);
-    }
-
-    private String getDeviceId(){
+   private String getDeviceId(){
         String response = mOkHttpHelper.post(Constant.GET_DEVICE_ID, "");
         mDeviceIdBean = new Gson().fromJson(response, DeviceIdBean.class);
         if(mDeviceIdBean == null){finish();return "0800";}
@@ -110,7 +73,6 @@ public class ResultActivity extends BaseActivity implements MyException {
         mTvDeviceId.setText(mDeviceType);
         mTvTerminalId.setText(String.format("%s%s", deviceId, mTerminalId));
         mTvProductId.setText(mProductId);
-
     }
 
     @Override
@@ -120,10 +82,6 @@ public class ResultActivity extends BaseActivity implements MyException {
             public void onClick(View v) {
                 mTvEntry.setBackground(getResources().getDrawable(R.drawable.hollow_circle));
                 mTvEntry.setTextColor(getResources().getColor(R.color.colorPrimary));
-                if (!mConfigured || !mConnected) {
-                    Toast.makeText(ResultActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 String terminalId = mTvTerminalId.getText().toString().trim();
                 ConfigBean configBean = new ConfigBean();
                 configBean.setProducerID(mProductId);
@@ -146,19 +104,11 @@ public class ResultActivity extends BaseActivity implements MyException {
 
     @Override
     protected void onDestroy() {
-        unregisterReceiver(mReceiver);
         super.onDestroy();
     }
 
     @Override
-    public void show(String str) {
+    public void show(int flag,String str) {
         Toast.makeText(ResultActivity.this, str, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void initUsb() {
-        if (!ismConnected() || !ismConfigured()) {
-            Toast.makeText(ResultActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
-        }
     }
 }

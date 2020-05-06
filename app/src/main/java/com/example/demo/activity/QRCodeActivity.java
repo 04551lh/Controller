@@ -1,14 +1,12 @@
 package com.example.demo.activity;
 
-
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.demo.Bean.ResponseBean;
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
@@ -20,15 +18,11 @@ import com.google.gson.Gson;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
-//import com.yzq.zxinglibrary.android.CaptureActivity;
-//import com.yzq.zxinglibrary.common.Constant;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -49,6 +43,7 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
 
     private OkHttpHelper mOkHttpHelper = OkHttpHelper.getInstance();
     private ResponseBean mResponseBean;
+    private final static int request_code = 0;
 
     @Override
     public int getLayoutResId() {
@@ -65,13 +60,12 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
         mTvProductCode = findViewById(R.id.tv_product_code);
         mTvDateCode = findViewById(R.id.tv_date_code);
         mTvHomePage = findViewById(R.id.tv_homepage);
-        mTvNext = findViewById(R.id.tv_next);
+        mTvNext = findViewById(R.id.tv_next);;
         String response = mOkHttpHelper.post(com.example.demo.network.Constant.GET_CONFIG, "");
         mResponseBean = new Gson().fromJson(response, ResponseBean.class);
         initData();
         initFragment();
     }
-
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void initData() {
@@ -102,9 +96,6 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
         }
         if (!mProductFragment.isAdded()) {
             String productCoding = mResponseBean.getResult().getProductCoding();
-//            if (!productCoding.startsWith("KY")) {
-//                productCoding = "KY" + productCoding;
-//            }
             Bundle bundle = new Bundle();
             bundle.putString(com.example.demo.network.Constant.PRODUCT_CODE, productCoding);
             mProductFragment.setArguments(bundle);
@@ -187,7 +178,6 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
         return null;
     }
 
-
     @Override
     public void onClick(View v) {
         Fragment currentFragment = getCurrentFragment();
@@ -207,7 +197,6 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
                 mTvHomePage.setText(mPreviousPage);
                 mTvNext.setText(mReScanning);
                 break;
-
             case R.id.tv_homepage:
                 if (mTvHomePage.getText().toString().trim().equals(mBackHomePage))
                     startActivity(new Intent(QRCodeActivity.this, MainActivity.class));
@@ -239,7 +228,7 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
                     config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
                     config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
                     intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-                    startActivityForResult(intent, 0);
+                    startActivityForResult(intent, request_code);
                 }
                 break;
         }
@@ -265,13 +254,6 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
                 startActivity(intent);
                 finish();
             }
-        }
-    }
-
-    @Override
-    public void initUsb() {
-        if (!ismConnected() || !ismConfigured()) {
-            Toast.makeText(QRCodeActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
         }
     }
 }

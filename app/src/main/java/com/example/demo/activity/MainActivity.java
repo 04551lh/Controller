@@ -2,13 +2,9 @@ package com.example.demo.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.hardware.usb.UsbManager;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -39,15 +35,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private TextView mTvEdit;
     private TextView mTvScan;
     private boolean mIsSave;
+    private final static int request_code= 0;
 
     private SharedPreferencesHelper sharedPreferencesHelper;
-
-    //USB
-    private BroadcastReceiver mReceiver;
-
-    private boolean mConnected = false;
-    private boolean mConfigured = false;
-
 
     @Override
     public int getLayoutResId() {
@@ -75,7 +65,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         String device = deviceId == null ? "KY-BJX" : deviceId;
         mEtProductId.setText(product);
         mEtProductType.setText(device);
-        initUSB();
         if (productId != null && deviceId != null) {
             mEtProductId.setEnabled(false);
             mEtProductId.setClickable(false);
@@ -171,37 +160,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     Toast.makeText(MainActivity.this, R.string.please_save, Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-                if (!mConfigured || !mConnected) {
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
-                    return;
-                }
+//                if (!ismConnected() || !ismConfigured()) {
+//                    Toast.makeText(MainActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
+//                   return;
+//                }
                 setCameraManifest();
                 break;
         }
     }
-
-    private void initUSB() {
-        mReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (intent.hasExtra(UsbManager.EXTRA_PERMISSION_GRANTED)) {
-                    boolean permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
-                }
-                switch (action) {
-                    case com.example.demo.network.Constant.ACTION_USB_STATE:
-                        mConnected = intent.getBooleanExtra("connected", false);
-                        mConfigured = intent.getBooleanExtra("configured", false);
-                        break;
-                }
-            }
-        };
-        IntentFilter mIntentFilter = new IntentFilter();
-        mIntentFilter.addAction(com.example.demo.network.Constant.ACTION_USB_STATE);
-        registerReceiver(mReceiver, mIntentFilter);
-    }
-
 
     @SuppressLint("ShowToast")
     private void setCameraManifest() {
@@ -227,7 +193,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
                 config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
                 intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-                startActivityForResult(intent, 0);
+                startActivityForResult(intent, request_code);
             }
         } else {
             Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
@@ -246,7 +212,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
             config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
             intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-            startActivityForResult(intent, 0);
+            startActivityForResult(intent, request_code);
         }
     }
 
@@ -265,7 +231,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
                 config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
                 intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-                startActivityForResult(intent, 0);
+                startActivityForResult(intent, request_code);
             }
         }
     }
@@ -284,19 +250,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     public void afterTextChanged(Editable s) {
         if (TextUtils.isEmpty(s)) {
             mIsSave = false;
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(mReceiver);
-    }
-
-    @Override
-    public void initUsb() {
-        if (!ismConnected() || !ismConfigured()) {
-            Toast.makeText(MainActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
         }
     }
 }

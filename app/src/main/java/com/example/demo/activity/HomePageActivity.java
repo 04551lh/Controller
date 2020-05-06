@@ -10,9 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.core.app.ActivityCompat;
-
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
 import com.yzq.zxinglibrary.android.CaptureActivity;
@@ -185,13 +183,5 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
             }
         }
         return false;
-    }
-
-    @Override
-    public void initUsb() {
-        //todo
-        if (!ismConnected() || !ismConfigured()) {
-            Toast.makeText(HomePageActivity.this, getResources().getString(R.string.please_usb_tip), Toast.LENGTH_SHORT).show();
-        }
     }
 }

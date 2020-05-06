@@ -2,6 +2,8 @@ package com.example.demo.utils;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.util.Log;
+
 import com.example.demo.R;
 
 /**
@@ -23,6 +25,7 @@ public class BaseDialog extends Dialog {
     }
     //显示dialog的方法
     public static BaseDialog showDialog(Context context){
+        Log.i("BaseDialog","showDialog");
         mBaseDialog = new BaseDialog(context, R.style.MyDialog1);//dialog样式
         mBaseDialog.setContentView(R.layout.dialog_load_progress);//dialog布局文件
         mBaseDialog.setCanceledOnTouchOutside(false);//点击外部不允许关闭dialog

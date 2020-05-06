@@ -44,4 +44,10 @@ public class Constant {
 
     public static final String ACTION_USB_STATE = "android.hardware.usb.action.USB_STATE";
 
+    //速度信息获取
+    public static final String GET_SPEEDS_INFO = BASE_URL +"/speedRequest";
+    //速度信息配置
+    public static final String POST_SPEEDS_DATA =BASE_URL+"/speedConfig";
+
+
 }
