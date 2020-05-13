@@ -8,83 +8,130 @@
 
     <LinearLayout
         android:id="@+id/ll_title"
-        app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
+            android:id="@+id/iv_settings_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding = "@dimen/dp_16"
-            android:id="@+id/iv_settings_back"
-            android:src="@mipmap/arrow_left_icon"/>
+            android:padding="@dimen/dp_16"
+            android:src="@mipmap/arrow_left_icon" />
+
         <TextView
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="center"
+            android:paddingTop="@dimen/sp_17"
+            android:paddingBottom="16dp"
+            android:text="@string/settings"
             android:textColor="@android:color/black"
             android:textSize="16sp"
-            android:text="@string/settings"
-            android:gravity="center"
-            android:paddingTop="16dp"
-            android:textStyle="bold"
-            android:paddingBottom="16dp"
-            android:layout_height="wrap_content"/>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding = "@dimen/dp_16"
-            android:id="@+id/iv_refresh"
-            android:src="@mipmap/refresh_icon"/>
+            android:textStyle="bold" />
     </LinearLayout>
 
     <View
-        app:layout_constraintTop_toBottomOf="@+id/ll_title"
+        android:id="@+id/view_title"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_1"
-        android:id="@+id/view_title"
-        android:background="@color/app_background"/>
+        android:background="@color/line_bg"
+        app:layout_constraintTop_toBottomOf="@+id/ll_title" />
 
-    <LinearLayout
-        android:layout_marginTop="@dimen/dp_40"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/srl_settings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/ll_plus_speed"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_title"
-        android:background="@android:color/white">
+        app:layout_constraintTop_toBottomOf="@+id/view_title">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:paddingLeft="@dimen/dp_21"
-            android:paddingTop="@dimen/dp_8"
-            android:paddingBottom="@dimen/dp_7"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/sp_16"
-            android:textColor="@color/font"
-            android:text="脉冲系数"/>
+            android:orientation="vertical">
 
-        <EditText
-            android:layout_width="@dimen/dp_60"
-            android:maxLength="3"
-            android:inputType="number"
-            android:id="@+id/et_plus_speed"
-            android:gravity="center"
-            android:background="@drawable/input_settings_style"
-            android:layout_height="@dimen/dp_30"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:gravity="center"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/sp_16"
-            android:textColor="@color/font_333"
-            android:text="×100"
-            android:layout_marginLeft="@dimen/dp_10"
-            android:layout_marginRight="@dimen/dp_20" />
-    </LinearLayout>
+            <LinearLayout
+                android:id="@+id/ll_plus_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_14"
+                android:background="@android:color/white"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="left"
+                    android:paddingLeft="@dimen/dp_16"
+                    android:text="@string/plus_speed"
+                    android:textColor="@color/font"
+                    android:textSize="@dimen/sp_15"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/iv_plus_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/dp_16"
+                    android:src="@drawable/switch_close_icon" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/view_plus_line"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_1"
+                android:layout_marginLeft="@dimen/dp_16"
+                android:background="@color/line_bg"
+                app:layout_constraintTop_toBottomOf="@+id/ll_plus_speed" />
+
+            <EditText
+                android:id="@+id/et_plus_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                android:gravity="right"
+                android:hint="输入频率设置60HZ"
+                android:inputType="number"
+                android:maxLength="4"
+                android:padding="@dimen/dp_16"
+                android:textColor="@color/font"
+                android:textSize="@dimen/sp_15"
+                app:layout_constraintTop_toBottomOf="@+id/view_plus_line" />
+
+            <LinearLayout
+                android:id="@+id/ll_simulation_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_10"
+                android:background="@android:color/white"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/et_plus_speed">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="left"
+                    android:paddingLeft="@dimen/dp_16"
+                    android:text="@string/simulation_speed"
+                    android:textColor="@color/font"
+                    android:textSize="@dimen/sp_15"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/iv_simulation_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/dp_16"
+                    android:src="@drawable/switch_close_icon" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <TextView
         android:id="@+id/tv_save"
@@ -96,8 +143,8 @@
         android:text="@string/save"
         android:textColor="@android:color/white"
         android:textSize="@dimen/sp_16"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

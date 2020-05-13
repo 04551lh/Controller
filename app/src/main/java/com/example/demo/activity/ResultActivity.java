@@ -8,6 +8,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.example.demo.Bean.ConfigBean;
 import com.example.demo.Bean.DeviceIdBean;
+import com.example.demo.Bean.DeviceUniqueCodeBean;
+import com.example.demo.Bean.QRBean;
 import com.example.demo.Bean.SucceedBean;
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
@@ -15,6 +17,8 @@ import com.example.demo.network.Constant;
 import com.example.demo.network.OkHttpHelper;
 import com.example.demo.utils.MyException;
 import com.google.gson.Gson;
+
+import java.security.MessageDigest;
 import java.text.DecimalFormat;
 
 public class ResultActivity extends BaseActivity implements MyException {
@@ -80,23 +84,25 @@ public class ResultActivity extends BaseActivity implements MyException {
         mTvEntry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mTvEntry.setBackground(getResources().getDrawable(R.drawable.hollow_circle));
-                mTvEntry.setTextColor(getResources().getColor(R.color.colorPrimary));
                 String terminalId = mTvTerminalId.getText().toString().trim();
                 ConfigBean configBean = new ConfigBean();
                 configBean.setProducerID(mProductId);
                 configBean.setTerminalModel(mDeviceType);
                 configBean.setTerminalId(terminalId);
                 configBean.setManufactureDate(mDate);
-                String json = new Gson().toJson(configBean);
-                String response = mOkHttpHelper.post(Constant.UPDATA_CONFIG, json);
-                if(response == null)return;
-                SucceedBean succeedBean = new Gson().fromJson(response, SucceedBean.class);
-                if (succeedBean.getStatuesCode() == 0) {
-                    Intent intent = new Intent(ResultActivity.this, QRCodeActivity.class);
-                    intent.putExtra(Constant.PRODUCT_ID, mProductId);
-                    intent.putExtra(Constant.DEIVCE_ID, mDeviceType);
-                    startActivity(intent);
+                if(judgeService(mTerminalId)){
+                    mTvEntry.setBackground(getResources().getDrawable(R.drawable.hollow_circle));
+                    mTvEntry.setTextColor(getResources().getColor(R.color.colorPrimary));
+                    String json = new Gson().toJson(configBean);
+                    String response = mOkHttpHelper.post(Constant.UPDATA_CONFIG, json);
+                    if(response == null)return;
+                    SucceedBean succeedBean = new Gson().fromJson(response, SucceedBean.class);
+                    if (succeedBean.getStatuesCode() == 0) {
+                        Intent intent = new Intent(ResultActivity.this, QRCodeActivity.class);
+                        intent.putExtra(Constant.PRODUCT_ID, mProductId);
+                        intent.putExtra(Constant.DEIVCE_ID, mDeviceType);
+                        startActivity(intent);
+                    }
                 }
             }
         });
@@ -110,5 +116,58 @@ public class ResultActivity extends BaseActivity implements MyException {
     @Override
     public void show(int flag,String str) {
         Toast.makeText(ResultActivity.this, str, Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean judgeService(String qr){
+        boolean success = false;
+        QRBean qrBean = new QRBean();
+        //设备唯一码
+        qrBean.setDevice_id(qr);
+        //时间戳（UNIX时间戳)
+        String timestamp = System.currentTimeMillis()+"";
+        qrBean.setTimestamp(timestamp);
+        qrBean.setSign(getStrMd5(qr+timestamp));
+        //设备标识：0 非部标，1部标
+        qrBean.setFlag("1");
+        qrBean.setDevice_info(null);
+        String json = new Gson().toJson(qrBean);
+        String response = mOkHttpHelper.post(Constant.DEVICE_UNIQUE_CODE, json);
+        //返回值 ，0：正常；-1:其他错误；-2：SIGN错误，-4：该设备已报备过
+        DeviceUniqueCodeBean deviceUniqueCodeBean = new Gson().fromJson(response, DeviceUniqueCodeBean.class);
+        if( 0 == deviceUniqueCodeBean.getRet()){
+            success = true;
+        }else if(-1 == deviceUniqueCodeBean.getRet()) {
+            Toast.makeText(ResultActivity.this,"其他错误",Toast.LENGTH_SHORT).show();
+        }else if(-2 == deviceUniqueCodeBean.getRet()){
+            Toast.makeText(ResultActivity.this,"SIGN错误",Toast.LENGTH_SHORT).show();
+        }else if(-4 == deviceUniqueCodeBean.getRet()){
+            Toast.makeText(ResultActivity.this,"该设备已报备过",Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(ResultActivity.this,"未知错误",Toast.LENGTH_SHORT).show();
+        }
+        return success;
+    }
+
+    public static String getStrMd5(String msg) {
+        char[] hexDigits = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+        try {
+            byte[] btInput = msg.getBytes();
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            digest.update(btInput);
+            byte[] md = digest.digest();
+            int j = md.length;
+            char[] str = new char[j * 2];
+            int k = 0;
+            for(int i = 0; i < j; ++i) {
+                byte byte0 = md[i];
+                str[k++] = hexDigits[byte0 >>> 4 & 15];
+                str[k++] = hexDigits[byte0 & 15];
+            }
+            return new String(str);
+        } catch (Exception var10) {
+            var10.printStackTrace();
+            return null;
+        }
     }
 }

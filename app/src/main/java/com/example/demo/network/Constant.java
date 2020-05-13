@@ -43,6 +43,8 @@ public class Constant {
     public static final String GET_DEVICE_ID = BASE_URL +"/factoryProdectKindRequest";
 
     public static final String ACTION_USB_STATE = "android.hardware.usb.action.USB_STATE";
+    //后台服务验证
+    public final static String  DEVICE_UNIQUE_CODE= "https://cloud.background.adasplus.com:80/device_info_report_insert";
 
     //速度信息获取
     public static final String GET_SPEEDS_INFO = BASE_URL +"/speedRequest";

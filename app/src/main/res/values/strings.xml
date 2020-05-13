@@ -37,4 +37,6 @@
     <string name="device_not_responding">\n原因：设备无响应</string>
     <string name="code_error">\n原因：设备唯一码格式错误</string>
     <string name="settings">设置</string>
+    <string name="plus_speed">脉冲系数</string>
+    <string name="simulation_speed">模拟速度</string>
 </resources>

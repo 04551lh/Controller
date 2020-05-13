@@ -10,6 +10,6 @@
     <color name="app_background">#EEEEEE</color>
     <color name="primary">#5677FC</color>
     <color name="app_bg">#FBFBFB</color>
-    <color name="line_bg">#FFFFFF</color>
     <color name="color_reentry">#F1962E</color>
+    <color name="line_bg">#DEDEDE</color>
 </resources>

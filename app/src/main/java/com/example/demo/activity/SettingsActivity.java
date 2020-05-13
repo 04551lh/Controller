@@ -1,15 +1,18 @@
 package com.example.demo.activity;
 
+import android.content.Context;
 import android.os.Build;
 import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.RequiresApi;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.demo.Bean.PlusSpeedBean;
 import com.example.demo.Bean.SucceedBean;
 import com.example.demo.R;
@@ -18,15 +21,23 @@ import com.example.demo.network.Constant;
 import com.example.demo.network.OkHttpHelper;
 import com.example.demo.utils.MyException;
 import com.google.gson.Gson;
-public class SettingsActivity extends BaseActivity implements View.OnClickListener, MyException {
+
+public class SettingsActivity extends BaseActivity implements View.OnClickListener, MyException, SwipeRefreshLayout.OnRefreshListener {
 
     private final static String TAG = "SettingsActivity";
     private ImageView mIvSettingsBack;
-    private ImageView mIvRefresh;
+    private ImageView mIvPlusSpeed;
     private EditText mEtPlusSpeed;
+    private ImageView mIvSimulationSpeed;
     private TextView mTvSave;
+    private SwipeRefreshLayout mSRLSettings;
     private OkHttpHelper mOkHttpHelper;
     private PlusSpeedBean.ResultBean mResultBean;
+    private int mSwitchClose;
+    private int mSwitchOpen;
+    private int mSpeedEnable;
+    private int mSimulationEnable;
+    private InputMethodManager mInputMethodManager;
 
     @Override
     public int getLayoutResId() {
@@ -36,35 +47,54 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void initViews() {
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         mIvSettingsBack = findViewById(R.id.iv_settings_back);
-        mIvRefresh = findViewById(R.id.iv_refresh);
+        mIvPlusSpeed = findViewById(R.id.iv_plus_switch);
         mEtPlusSpeed = findViewById(R.id.et_plus_speed);
+        mIvSimulationSpeed = findViewById(R.id.iv_simulation_switch);
         mTvSave = findViewById(R.id.tv_save);
+        mSRLSettings = findViewById(R.id.srl_settings);
         mOkHttpHelper = OkHttpHelper.getInstance();
         mOkHttpHelper.setMyException(this);
+        initData();
         getNetwork();
     }
 
     @Override
     public void setListener() {
+        mSRLSettings.setOnRefreshListener(this);
         mIvSettingsBack.setOnClickListener(this);
-        mIvRefresh.setOnClickListener(this);
+        mIvPlusSpeed.setOnClickListener(this);
+        mIvSimulationSpeed.setOnClickListener(this);
         mTvSave.setOnClickListener(this);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onClick(View v) {
+        //键盘处理
         switch (v.getId()) {
             case R.id.iv_settings_back:
+//                if (mInputMethodManager.isActive()) {
+//                    mInputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);  //强制隐藏
+//                }
                 finish();
                 break;
-            case R.id.iv_refresh:
-                onRefresh();
+            case R.id.iv_plus_switch:
+                mSpeedEnable = 1;
+                mEtPlusSpeed.setTextColor(getResources().getColor(R.color.font));
+                mEtPlusSpeed.setEnabled(true);
+                mIvPlusSpeed.setImageResource(mSwitchOpen);
+                mSimulationEnable = 0;
+                mIvSimulationSpeed.setImageResource(mSwitchClose);
+                break;
+            case R.id.iv_simulation_switch:
+                mSpeedEnable = 0;
+                mEtPlusSpeed.setTextColor(getResources().getColor(R.color.colorGray));
+                mEtPlusSpeed.setEnabled(false);
+                mIvPlusSpeed.setImageResource(mSwitchClose);
+                mSimulationEnable = 1;
+                mIvSimulationSpeed.setImageResource(mSwitchOpen);
                 break;
             case R.id.tv_save:
                 if (TextUtils.isEmpty(mEtPlusSpeed.getText())) {
@@ -76,11 +106,11 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                     Toast.makeText(SettingsActivity.this, "脉冲系数取值区间0-100～", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Log.i(TAG,"speed:"+speed);
-                if(mResultBean ==null){
+                Log.i(TAG, "speed:" + speed);
+                if (mResultBean == null) {
                     mResultBean = new PlusSpeedBean.ResultBean();
                 }
-                if(mResultBean.getPulseSpeed() == null){
+                if (mResultBean.getPulseSpeed() == null) {
                     mResultBean.setPulseSpeed(new PlusSpeedBean.ResultBean.PulseSpeedBean());
                 }
                 mResultBean.getPulseSpeed().setPulseCoefficient(speed * 100);
@@ -89,8 +119,20 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         }
     }
 
+    private void initData(){
+        mInputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        mSRLSettings.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light, android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+        mSRLSettings.setProgressBackgroundColorSchemeResource(android.R.color.white);
+        mSwitchClose = R.drawable.switch_close_icon;
+        mSwitchOpen = R.drawable.switch_open_icon;
+        mSpeedEnable = 1;
+        mIvPlusSpeed.setImageResource(mSwitchOpen);
+        mSimulationEnable = 0;
+        mIvSimulationSpeed.setImageResource(mSwitchClose);
+    }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void getNetwork() {
         String response = mOkHttpHelper.post(com.example.demo.network.Constant.GET_SPEEDS_INFO, "");
         if (response == null) {
@@ -100,22 +142,17 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         PlusSpeedBean plusSpeedBean = new Gson().fromJson(response, PlusSpeedBean.class);
         mResultBean = plusSpeedBean.getResult();
         int i = mResultBean.getPulseSpeed().getPulseCoefficient();
-        mResultBean.getPulseSpeed().setEnable(1);
+        mResultBean.getPulseSpeed().setEnable(mSpeedEnable);
         mResultBean.getPulseSpeed().setAutoCalibration(0);
-        mResultBean.getSimulateSpeed().setEnable(0);
+        mResultBean.getSimulateSpeed().setEnable(mSimulationEnable);
         mResultBean.getWithGPSSpeedEnable().setEnable(0);
-        mEtPlusSpeed.setText(String.format("%d", i / 100));
+        mEtPlusSpeed.setText(String.format("%s", i / 100));
         mEtPlusSpeed.setSelection(String.valueOf(i / 100).length());
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void onRefresh() {
-        getNetwork();
     }
 
     private void onSave() {
         String json = new Gson().toJson(mResultBean);
-        String response  = mOkHttpHelper.post(Constant.POST_SPEEDS_DATA, json);
+        String response = mOkHttpHelper.post(Constant.POST_SPEEDS_DATA, json);
         if (response == null) return;
         SucceedBean succeedBean = new Gson().fromJson(response, SucceedBean.class);
         if (succeedBean.getStatuesCode() == 0) {
@@ -125,7 +162,15 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     }
 
     @Override
-    public void show(int flag,String str) {
+    public void show(int flag, String str) {
         Toast.makeText(SettingsActivity.this, str, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Called when a swipe gesture triggers a refresh.
+     */
+    @Override
+    public void onRefresh() {
+        getNetwork();
     }
 }
