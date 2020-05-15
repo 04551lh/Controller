@@ -87,15 +87,13 @@
                 android:background="@color/line_bg"
                 app:layout_constraintTop_toBottomOf="@+id/ll_plus_speed" />
 
-            <EditText
+            <TextView
                 android:id="@+id/et_plus_speed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/white"
                 android:gravity="right"
                 android:hint="输入频率设置60HZ"
-                android:inputType="number"
-                android:maxLength="4"
                 android:padding="@dimen/dp_16"
                 android:textColor="@color/font"
                 android:textSize="@dimen/sp_15"

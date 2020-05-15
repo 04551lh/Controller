@@ -32,6 +32,15 @@ public class DeviceUniqueCodeBean {
         this.ret = ret;
     }
 
+    @Override
+    public String toString() {
+        return "DeviceUniqueCodeBean{" +
+                "ret=" + ret +
+                ", device_id='" + device_id + '\'' +
+                ", msg='" + msg + '\'' +
+                '}';
+    }
+
     public String getDevice_id() {
         return device_id;
     }

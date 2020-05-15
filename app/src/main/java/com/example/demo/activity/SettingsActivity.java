@@ -3,11 +3,8 @@ package com.example.demo.activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.StrictMode;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,7 +24,6 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     private final static String TAG = "SettingsActivity";
     private ImageView mIvSettingsBack;
     private ImageView mIvPlusSpeed;
-    private EditText mEtPlusSpeed;
     private ImageView mIvSimulationSpeed;
     private TextView mTvSave;
     private SwipeRefreshLayout mSRLSettings;
@@ -51,7 +47,6 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         StrictMode.setThreadPolicy(policy);
         mIvSettingsBack = findViewById(R.id.iv_settings_back);
         mIvPlusSpeed = findViewById(R.id.iv_plus_switch);
-        mEtPlusSpeed = findViewById(R.id.et_plus_speed);
         mIvSimulationSpeed = findViewById(R.id.iv_simulation_switch);
         mTvSave = findViewById(R.id.tv_save);
         mSRLSettings = findViewById(R.id.srl_settings);
@@ -75,45 +70,31 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         //键盘处理
         switch (v.getId()) {
             case R.id.iv_settings_back:
-//                if (mInputMethodManager.isActive()) {
-//                    mInputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);  //强制隐藏
-//                }
+                if (mInputMethodManager.isActive()) {
+                    mInputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);  //强制隐藏
+                }
                 finish();
                 break;
             case R.id.iv_plus_switch:
                 mSpeedEnable = 1;
-                mEtPlusSpeed.setTextColor(getResources().getColor(R.color.font));
-                mEtPlusSpeed.setEnabled(true);
                 mIvPlusSpeed.setImageResource(mSwitchOpen);
                 mSimulationEnable = 0;
                 mIvSimulationSpeed.setImageResource(mSwitchClose);
                 break;
             case R.id.iv_simulation_switch:
                 mSpeedEnable = 0;
-                mEtPlusSpeed.setTextColor(getResources().getColor(R.color.colorGray));
-                mEtPlusSpeed.setEnabled(false);
                 mIvPlusSpeed.setImageResource(mSwitchClose);
                 mSimulationEnable = 1;
                 mIvSimulationSpeed.setImageResource(mSwitchOpen);
                 break;
             case R.id.tv_save:
-                if (TextUtils.isEmpty(mEtPlusSpeed.getText())) {
-                    Toast.makeText(SettingsActivity.this, "请输入脉冲系数～", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                int speed = Integer.parseInt(mEtPlusSpeed.getText().toString());
-                if (speed < 0 || speed > 100) {
-                    Toast.makeText(SettingsActivity.this, "脉冲系数取值区间0-100～", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Log.i(TAG, "speed:" + speed);
                 if (mResultBean == null) {
                     mResultBean = new PlusSpeedBean.ResultBean();
                 }
                 if (mResultBean.getPulseSpeed() == null) {
                     mResultBean.setPulseSpeed(new PlusSpeedBean.ResultBean.PulseSpeedBean());
                 }
-                mResultBean.getPulseSpeed().setPulseCoefficient(speed * 100);
+                mResultBean.getPulseSpeed().setPulseCoefficient(3600);
                 onSave();
                 break;
         }
@@ -141,13 +122,10 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         }
         PlusSpeedBean plusSpeedBean = new Gson().fromJson(response, PlusSpeedBean.class);
         mResultBean = plusSpeedBean.getResult();
-        int i = mResultBean.getPulseSpeed().getPulseCoefficient();
         mResultBean.getPulseSpeed().setEnable(mSpeedEnable);
         mResultBean.getPulseSpeed().setAutoCalibration(0);
         mResultBean.getSimulateSpeed().setEnable(mSimulationEnable);
         mResultBean.getWithGPSSpeedEnable().setEnable(0);
-        mEtPlusSpeed.setText(String.format("%s", i / 100));
-        mEtPlusSpeed.setSelection(String.valueOf(i / 100).length());
     }
 
     private void onSave() {

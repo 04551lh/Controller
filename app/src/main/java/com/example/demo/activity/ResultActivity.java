@@ -3,13 +3,13 @@ package com.example.demo.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.demo.Bean.ConfigBean;
 import com.example.demo.Bean.DeviceIdBean;
 import com.example.demo.Bean.DeviceUniqueCodeBean;
-import com.example.demo.Bean.QRBean;
 import com.example.demo.Bean.SucceedBean;
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
@@ -17,12 +17,12 @@ import com.example.demo.network.Constant;
 import com.example.demo.network.OkHttpHelper;
 import com.example.demo.utils.MyException;
 import com.google.gson.Gson;
-
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
 
 public class ResultActivity extends BaseActivity implements MyException {
 
+    private static final String TAG = "ResultActivity";
     private TextView mTvThreeId;
     private TextView mTvDeviceId;
     private TextView mTvTerminalId;
@@ -90,7 +90,7 @@ public class ResultActivity extends BaseActivity implements MyException {
                 configBean.setTerminalModel(mDeviceType);
                 configBean.setTerminalId(terminalId);
                 configBean.setManufactureDate(mDate);
-                if(judgeService(mTerminalId)){
+                if(judgeService(terminalId)){
                     mTvEntry.setBackground(getResources().getDrawable(R.drawable.hollow_circle));
                     mTvEntry.setTextColor(getResources().getColor(R.color.colorPrimary));
                     String json = new Gson().toJson(configBean);
@@ -120,20 +120,20 @@ public class ResultActivity extends BaseActivity implements MyException {
 
     private boolean judgeService(String qr){
         boolean success = false;
-        QRBean qrBean = new QRBean();
-        //设备唯一码
-        qrBean.setDevice_id(qr);
         //时间戳（UNIX时间戳)
-        String timestamp = System.currentTimeMillis()+"";
-        qrBean.setTimestamp(timestamp);
-        qrBean.setSign(getStrMd5(qr+timestamp));
-        //设备标识：0 非部标，1部标
-        qrBean.setFlag("1");
-        qrBean.setDevice_info(null);
-        String json = new Gson().toJson(qrBean);
-        String response = mOkHttpHelper.post(Constant.DEVICE_UNIQUE_CODE, json);
-        //返回值 ，0：正常；-1:其他错误；-2：SIGN错误，-4：该设备已报备过
+        String timestamp = System.currentTimeMillis()/1000+"";
+        mOkHttpHelper.addParam("terminal_id",qr);
+        mOkHttpHelper.addParam("timestamp",timestamp);
+        Log.i(TAG,"getStrMd5:"+getStrMd5(qr).toLowerCase());
+        mOkHttpHelper.addParam("sign", getStrMd5(String.format("%s%s", getStrMd5(qr).toLowerCase(), timestamp)).toLowerCase());
+        mOkHttpHelper.addParam("device_info","");
+        mOkHttpHelper.addParam("flag","1");
+        String url =  mOkHttpHelper.getParamWithString(Constant.TEST_DEVICE_UNIQUE_CODE);
+        String response = mOkHttpHelper.post(url, "");
+        //返回值 ，0：正常；-1:其他错误；-2：SIGN错误，-4：该设备已报备过，-5设备唯一码不全部是数字
         DeviceUniqueCodeBean deviceUniqueCodeBean = new Gson().fromJson(response, DeviceUniqueCodeBean.class);
+        if(deviceUniqueCodeBean == null)return false;
+        Log.i(TAG,deviceUniqueCodeBean.toString());
         if( 0 == deviceUniqueCodeBean.getRet()){
             success = true;
         }else if(-1 == deviceUniqueCodeBean.getRet()) {
@@ -142,6 +142,8 @@ public class ResultActivity extends BaseActivity implements MyException {
             Toast.makeText(ResultActivity.this,"SIGN错误",Toast.LENGTH_SHORT).show();
         }else if(-4 == deviceUniqueCodeBean.getRet()){
             Toast.makeText(ResultActivity.this,"该设备已报备过",Toast.LENGTH_SHORT).show();
+        }else if(-5 == deviceUniqueCodeBean.getRet()){
+            Toast.makeText(ResultActivity.this,"设备唯一码不全部是数字",Toast.LENGTH_SHORT).show();
         }else{
             Toast.makeText(ResultActivity.this,"未知错误",Toast.LENGTH_SHORT).show();
         }

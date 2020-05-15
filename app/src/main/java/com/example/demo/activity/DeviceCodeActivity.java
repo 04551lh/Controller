@@ -18,7 +18,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import com.example.demo.Bean.ConfigBean;
 import com.example.demo.Bean.DeviceUniqueCodeBean;
-import com.example.demo.Bean.QRBean;
 import com.example.demo.Bean.SucceedBean;
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
@@ -191,18 +190,16 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
 
     private boolean judgeService(String qr){
         boolean success = false;
-        QRBean qrBean = new QRBean();
-        //设备唯一码
-        qrBean.setDevice_id(qr);
         //时间戳（UNIX时间戳)
-        String timestamp = System.currentTimeMillis()+"";
-        qrBean.setTimestamp(timestamp);
-        qrBean.setSign(getStrMd5(qr+timestamp));
-        //设备标识：0 非部标，1部标
-        qrBean.setFlag("1");
-        qrBean.setDevice_info(null);
-        String json = new Gson().toJson(qrBean);
-        String response = mOkHttpHelper.post(com.example.demo.network.Constant.DEVICE_UNIQUE_CODE, json);
+        String timestamp = System.currentTimeMillis()/1000+"";
+        mOkHttpHelper.addParam("terminal_id",qr);
+        mOkHttpHelper.addParam("timestamp",timestamp);
+        Log.i(TAG,"getStrMd5:"+getStrMd5(qr).toLowerCase());
+        mOkHttpHelper.addParam("sign", getStrMd5(String.format("%s%s", getStrMd5(qr).toLowerCase(), timestamp)).toLowerCase());
+        mOkHttpHelper.addParam("device_info","");
+        mOkHttpHelper.addParam("flag","1");
+        String url =  mOkHttpHelper.getParamWithString(com.example.demo.network.Constant.TEST_DEVICE_UNIQUE_CODE);
+        String response = mOkHttpHelper.post(url, "");
         //返回值 ，0：正常；-1:其他错误；-2：SIGN错误，-4：该设备已报备过
         DeviceUniqueCodeBean deviceUniqueCodeBean = new Gson().fromJson(response, DeviceUniqueCodeBean.class);
         if( 0 == deviceUniqueCodeBean.getRet()){
@@ -230,13 +227,11 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
             int j = md.length;
             char[] str = new char[j * 2];
             int k = 0;
-
             for(int i = 0; i < j; ++i) {
                 byte byte0 = md[i];
                 str[k++] = hexDigits[byte0 >>> 4 & 15];
                 str[k++] = hexDigits[byte0 & 15];
             }
-
             return new String(str);
         } catch (Exception var10) {
             var10.printStackTrace();

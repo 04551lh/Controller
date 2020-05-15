@@ -2,8 +2,13 @@ package com.example.demo.base;
 
 import android.app.Application;
 
+import com.example.demo.network.OkHttpHelper;
 import com.tencent.bugly.Bugly;
 import com.tencent.bugly.crashreport.CrashReport;
+
+import java.io.IOException;
+
+import okhttp3.OkHttpClient;
 
 /**
  * Created by dell on 2019/12/10 12:12
