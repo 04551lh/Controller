@@ -4,66 +4,84 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".activity.ResultActivity">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:textColor="@android:color/black"
-        android:textSize="16sp"
-        android:text="@string/scan_result"
-        android:gravity="center"
-        android:paddingTop="16dp"
-        android:paddingBottom="36dp"
-        android:textStyle="bold"
-        android:layout_height="wrap_content"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <ImageView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding = "@dimen/dp_16"
+            android:id="@+id/iv_scan_result_back"
+            android:src="@mipmap/arrow_left_icon"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:textColor="@android:color/black"
+            android:textSize="17sp"
+            android:text="@string/scan_result"
+            android:gravity="center"
+            android:paddingTop="16dp"
+            android:textStyle="bold"
+            android:paddingBottom="16dp"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/app_background"/>
+    <LinearLayout
+        android:layout_marginTop="@dimen/dp_60"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_marginStart="16dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@string/three_c_code"
-            android:textColor="@android:color/black"
-            android:textSize="16sp" />
+            android:textColor="@color/font"
+            android:textSize="@dimen/sp_15" />
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_weight="3"
-            android:layout_height="wrap_content"
-            android:background="@drawable/text_style"
+            android:layout_marginEnd="16dp"
             android:id="@+id/tv_three_id"
-            android:padding="10dp"
-            android:textColor="@android:color/black"
-            android:textSize="16sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="16dp">
-
-        <TextView
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="@string/device_type"
-            android:textColor="@android:color/black"
-            android:textSize="16sp" />
-
-        <TextView
-            android:layout_width="0dp"
             android:layout_weight="3"
-            android:layout_height="wrap_content"
             android:background="@drawable/text_style"
-            android:id="@+id/tv_device_id"
             android:padding="10dp"
-            android:textColor="@android:color/black"
+            android:textColor="@color/font"
+            android:textSize="@dimen/sp_16" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="16dp">
+        <TextView
+            android:layout_marginStart="16dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/device_type"
+            android:textColor="@color/font"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_marginEnd="16dp"
+            android:id="@+id/tv_device_id"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:background="@drawable/text_style"
+            android:padding="10dp"
+            android:textColor="@color/font"
             android:textSize="16sp" />
     </LinearLayout>
 
@@ -74,22 +92,23 @@
         android:paddingTop="16dp">
 
         <TextView
+            android:layout_marginStart="16dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/terminal_id"
-            android:textColor="@android:color/black"
-            android:textSize="16sp" />
+            android:textColor="@color/font"
+            android:textSize="15sp" />
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_weight="3"
-            android:layout_height="wrap_content"
-            android:background="@drawable/text_style"
+            android:layout_marginEnd="16dp"
             android:id="@+id/tv_terminal_id"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:background="@drawable/text_style"
             android:padding="10dp"
-            android:inputType="number"
-            android:textColor="@android:color/black"
+            android:textColor="@color/font"
             android:textSize="16sp" />
     </LinearLayout>
 
@@ -98,50 +117,79 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingTop="16dp">
-
         <TextView
+            android:layout_marginStart="16dp"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_height="wrap_content"
             android:text="@string/product_id"
-            android:textColor="@android:color/black"
-            android:textSize="16sp" />
+            android:textColor="@color/font"
+            android:textSize="15sp" />
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_weight="3"
-            android:layout_height="wrap_content"
-            android:background="@drawable/text_style"
+            android:layout_marginEnd="16dp"
             android:id="@+id/tv_product_id"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:background="@drawable/text_style"
             android:padding="10dp"
-            android:textColor="@android:color/black"
+            android:textColor="@color/font"
             android:textSize="16sp" />
     </LinearLayout>
+
+    <RelativeLayout
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_entry_success"
+            android:layout_width="83dp"
+            android:layout_height="83dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="60dp"
+            android:background="@mipmap/entry_success_icon"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="19sp" />
+        <TextView
+            android:id="@+id/tv_entry"
+            android:layout_width="83dp"
+            android:layout_height="83dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="60dp"
+            android:background="@drawable/ll_click_bg_style"
+            android:gravity="center"
+            android:text="@string/entry"
+            android:textColor="@android:color/white"
+            android:textSize="19sp" />
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_20"
         android:gravity="center"
-        android:layout_marginTop="36dp"
+        android:visibility="gone"
+        android:id="@+id/ll_scan_result_hint"
         android:orientation="horizontal">
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_scan_result_hint"
+            android:text="设备唯一码已存在，请"
+            android:textColor="@color/font"
+            android:textSize="@dimen/sp_15"
+            android:drawableLeft="@mipmap/fail_icon"/>
         <TextView
-            android:id="@+id/tv_entry"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_gravity="center"
-            android:background="@drawable/ll_click_bg_style"
-            android:gravity="center"
-            android:text="@string/entry"
-            android:textColor="@android:color/black"
-            android:textSize="16sp" />
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:id="@+id/tv_rescan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="请重新扫码"
+            android:textColor="#6E96CB"/>
     </LinearLayout>
+
+
 
 </LinearLayout>

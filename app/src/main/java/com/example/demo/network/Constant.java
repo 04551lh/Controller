@@ -34,7 +34,7 @@ public class Constant {
 
     public static final String USB_SERVER_IP_ADDRESS = "192.168.42.254:8000";
 
-    public static final String BASE_URL = "http://"+ WIFI_SERVER_IP_ADDRESS;
+    public static final String BASE_URL = "http://"+ USB_SERVER_IP_ADDRESS;
 
     public static final String UPDATA_CONFIG = BASE_URL + "/factoryTerminalInfoConfig";
 
@@ -44,9 +44,9 @@ public class Constant {
 
     public static final String ACTION_USB_STATE = "android.hardware.usb.action.USB_STATE";
     //后台服务验证
-    public final static String  DEVICE_UNIQUE_CODE= "https://cloud.background.adasplus.com:80/device_info_report_insert";
+    public final static String  TEST_DEVICE_UNIQUE_CODE= "https://cloud.background.adasplus.com:80/device_info_report_insert";
 
-    public final static String  TEST_DEVICE_UNIQUE_CODE= "https://test.cloud.background.adasplus.com/device_info_report_insert";
+//    public final static String  TEST_DEVICE_UNIQUE_CODE= "https://test.cloud.background.adasplus.com/device_info_report_insert";
     //速度信息获取
     public static final String GET_SPEEDS_INFO = BASE_URL +"/speedRequest";
     //速度信息配置

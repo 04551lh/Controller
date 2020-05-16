@@ -16,12 +16,10 @@ public class DeviceUniqueCodeBean {
 
     /**
      * ret : 0
-     * device_id : device_id
      * msg : 返回信息
      */
 
     private int ret;
-    private String device_id;
     private String msg;
 
     public int getRet() {
@@ -36,17 +34,8 @@ public class DeviceUniqueCodeBean {
     public String toString() {
         return "DeviceUniqueCodeBean{" +
                 "ret=" + ret +
-                ", device_id='" + device_id + '\'' +
                 ", msg='" + msg + '\'' +
                 '}';
-    }
-
-    public String getDevice_id() {
-        return device_id;
-    }
-
-    public void setDevice_id(String device_id) {
-        this.device_id = device_id;
     }
 
     public String getMsg() {

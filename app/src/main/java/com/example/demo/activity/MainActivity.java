@@ -27,13 +27,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     private ImageView mIvKy800;
     private EditText mEtProductId;
-    private EditText mEtProductType;
     private TextView mTvSave;
     private TextView mTvEdit;
     private TextView mTvScan;
     private boolean mIsSave;
-
-    private SharedPreferencesHelper sharedPreferencesHelper;
+    private SharedPreferencesHelper mSharedPreferencesHelper;
 
     @Override
     public int getLayoutResId() {
@@ -41,35 +39,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
     public void initViews() {
-        sharedPreferencesHelper = new SharedPreferencesHelper(this);
+        mSharedPreferencesHelper = new SharedPreferencesHelper(this);
         mIvKy800 = findViewById(R.id.iv_ky_800);
         mEtProductId = findViewById(R.id.et_product_id);
-        mEtProductType = findViewById(R.id.et_product_type);
         mTvSave = findViewById(R.id.tv_save);
         mTvEdit = findViewById(R.id.tv_edit);
         mTvScan = findViewById(R.id.tv_scan);
         mIsSave = false;
-        String productId = (String) sharedPreferencesHelper.get(com.example.demo.network.Constant.PRODUCT_ID, null);
-        String deviceId = (String) sharedPreferencesHelper.get(com.example.demo.network.Constant.DEIVCE_ID, null);
+        String productId = (String) mSharedPreferencesHelper.get(com.example.demo.network.Constant.PRODUCT_ID, null);
         String product = productId == null ? "75208" : productId;
-        String device = deviceId == null ? "KY-BJX" : deviceId;
         mEtProductId.setText(product);
-        mEtProductType.setText(device);
-        if (productId != null && deviceId != null) {
+        if (productId != null) {
             mEtProductId.setEnabled(false);
             mEtProductId.setClickable(false);
             mEtProductId.setTextColor(Color.DKGRAY);
-            mEtProductType.setEnabled(false);
-            mEtProductType.setClickable(false);
             mTvSave.setBackground(getResources().getDrawable(R.drawable.hollow_circle));
             mTvSave.setTextColor(getResources().getColor(R.color.colorPrimary));
-            mEtProductType.setTextColor(Color.DKGRAY);
             mIsSave = true;
         }
     }
@@ -80,7 +66,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mTvSave.setOnClickListener(this);
         mTvEdit.setOnClickListener(this);
         mTvScan.setOnClickListener(this);
-        mEtProductType.addTextChangedListener(this);
     }
 
     @Override
@@ -90,21 +75,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         if (requestCode == 0 && resultCode == RESULT_OK) {
             if (data != null) {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
-                String terminalId = "";
-                String date = "";
-                int length = content.length();
-                if (content != null &&length > 8)
-                    terminalId = content.substring(length- 8);
 
-                if (content != null && length > 11)
-                    date = content.substring(length - 11,length -3);
+                if (content == null) return;
+                if (content.length() < 14) return;
+                int length = content.length();
+                String terminalId = content.substring(length - 8);
+                String code = content.substring(length - 11, length - 3);
                 String mProductId = mEtProductId.getText().toString().trim();
-                String mProductType = mEtProductType.getText().toString().trim();
+                String productType = content.substring(7, 13);
                 Intent intent = new Intent(MainActivity.this, ResultActivity.class);
                 intent.putExtra(com.example.demo.network.Constant.THREE_ID, content.substring(0, 7));
-                intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID, mProductType);
+                intent.putExtra(com.example.demo.network.Constant.DEIVCE_ID, productType);
                 intent.putExtra(com.example.demo.network.Constant.TERMINAL_ID, terminalId);
-                intent.putExtra(com.example.demo.network.Constant.DATE_CODE, date);
+                intent.putExtra(com.example.demo.network.Constant.DATE_CODE, code);
                 intent.putExtra(com.example.demo.network.Constant.PRODUCT_ID, mProductId);
                 startActivity(intent);
             }
@@ -125,8 +108,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 }
                 mEtProductId.setEnabled(true);
                 mEtProductId.setClickable(true);
-                mEtProductType.setEnabled(true);
-                mEtProductType.setClickable(true);
                 mTvSave.setBackground(getResources().getDrawable(R.drawable.solid_round));
                 mTvSave.setTextColor(Color.WHITE);
                 break;
@@ -135,21 +116,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     Toast.makeText(MainActivity.this, getResources().getString(R.string.please_input_product_id_tip), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (TextUtils.isEmpty(mEtProductType.getText())) {
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.please_input_product_type_tip), Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 mEtProductId.setEnabled(false);
                 mEtProductId.setClickable(false);
                 mEtProductId.setTextColor(Color.DKGRAY);
-                mEtProductType.setEnabled(false);
-                mEtProductType.setClickable(false);
                 mTvSave.setBackground(getResources().getDrawable(R.drawable.hollow_circle));
                 mTvSave.setTextColor(getResources().getColor(R.color.colorPrimary));
-                mEtProductType.setTextColor(Color.DKGRAY);
                 mIsSave = true;
-                sharedPreferencesHelper.put(com.example.demo.network.Constant.PRODUCT_ID, mEtProductId.getText());
-                sharedPreferencesHelper.put(com.example.demo.network.Constant.DEIVCE_ID, mEtProductType.getText());
+                mSharedPreferencesHelper.put(com.example.demo.network.Constant.PRODUCT_ID, mEtProductId.getText());
                 break;
             case R.id.tv_scan:
                 if (!mIsSave) {
@@ -161,7 +134,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
     }
 
-    @SuppressLint("ShowToast")
     private void setCameraManifest() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {

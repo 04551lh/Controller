@@ -16,9 +16,10 @@ import com.example.demo.base.BaseActivity;
 import com.example.demo.utils.CommonMethod;
 import com.yzq.zxinglibrary.common.Constant;
 
+import org.jetbrains.annotations.NotNull;
+
 public class HomePageActivity extends BaseActivity implements View.OnClickListener {
 
-    private final static String TAG = "HomePageActivity";
     private TextView mTvStandardMachine;
     private TextView mTvNonStandardMachine;
     private Drawable mSelectDrawable;
@@ -95,7 +96,7 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         if (requestCode == 0 && grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -114,6 +115,7 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
                 if (content == null) {
                     Toast.makeText(HomePageActivity.this, "由于网络波动，请退出重新扫描～", Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 Intent intent = new Intent(HomePageActivity.this, DeviceCodeActivity.class);
                 intent.putExtra(com.example.demo.network.Constant.TERMINAL_ID, content);
@@ -121,7 +123,6 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
             }
         }
     }
-
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

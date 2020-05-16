@@ -1,36 +1,69 @@
 package com.example.demo.activity;
 
+import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.hardware.usb.UsbManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import com.example.demo.Bean.ConfigBean;
 import com.example.demo.Bean.DeviceIdBean;
 import com.example.demo.Bean.DeviceUniqueCodeBean;
 import com.example.demo.Bean.SucceedBean;
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
+import com.example.demo.network.CheckNetworkStatus;
 import com.example.demo.network.Constant;
 import com.example.demo.network.OkHttpHelper;
+import com.example.demo.utils.BaseDialog;
+import com.example.demo.utils.CommonMethod;
 import com.example.demo.utils.MyException;
 import com.google.gson.Gson;
-import java.security.MessageDigest;
 import java.text.DecimalFormat;
+import java.util.Objects;
 
-public class ResultActivity extends BaseActivity implements MyException {
+public class ResultActivity extends BaseActivity implements MyException, View.OnClickListener {
 
     private static final String TAG = "ResultActivity";
+    //返回按钮
+    private ImageView mIvScanResult;
+    //数据展示
     private TextView mTvThreeId;
     private TextView mTvDeviceId;
     private TextView mTvTerminalId;
     private TextView mTvProductId;
+    //提交按钮
     private TextView mTvEntry;
-    private String mProductId, mThreeCCode, mDeviceType, mTerminalId,mDate;
+    //提示
+    private LinearLayout mLlScanResultHint;
+    private TextView mTvScanResultHint;
+    private TextView mTvRescan;
+    private String mProductId;
+    private String mDeviceType;
+    private String mDate;
     private OkHttpHelper mOkHttpHelper;
-    private DeviceIdBean mDeviceIdBean;
+    private boolean mIsClock;
+    private String mHint;
+    //USB
+    private BroadcastReceiver mReceiver;
+    private boolean mConnected = false;
+    private boolean mConfigured = false;
+    private boolean mIsClose = false;
+    private TextView mTvEntrySuccess;
+    private BaseDialog mBaseDialog;
 
     @Override
     public int getLayoutResId() {
@@ -39,40 +72,67 @@ public class ResultActivity extends BaseActivity implements MyException {
 
     @Override
     public void initViews() {
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+        initUSB();
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        mIvScanResult = findViewById(R.id.iv_scan_result_back);
         mTvThreeId = findViewById(R.id.tv_three_id);
         mTvDeviceId = findViewById(R.id.tv_device_id);
         mTvTerminalId = findViewById(R.id.tv_terminal_id);
         mTvProductId = findViewById(R.id.tv_product_id);
+        mTvEntrySuccess = findViewById(R.id.tv_entry_success);
         mTvEntry = findViewById(R.id.tv_entry);
+        mLlScanResultHint = findViewById(R.id.ll_scan_result_hint);
+        mTvScanResultHint = findViewById(R.id.tv_scan_result_hint);
+        mTvRescan = findViewById(R.id.tv_rescan);
         mOkHttpHelper = OkHttpHelper.getInstance();
         mOkHttpHelper.setMyException(this);
+        mBaseDialog = BaseDialog.showDialog(ResultActivity.this);
         initData();
     }
+    private void initUSB() {
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (intent.hasExtra(UsbManager.EXTRA_PERMISSION_GRANTED)) {
+                    boolean permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
+                }
+                if (com.example.demo.network.Constant.ACTION_USB_STATE.equals(action)) {
+                    mConnected = intent.getBooleanExtra("connected", false);
+                    mConfigured = intent.getBooleanExtra("configured", false);
+                    Log.i(TAG, "mConnected :" + mConnected);
+                    Log.i(TAG, "mConnected :" + mConfigured);
+                    if (!mConnected && !mConfigured) {
+                        mIsClose = true;
+                    }else{
+                        if(mIsClose) {finish();}
+                    }
+                }
+            }
+        };
+        IntentFilter mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(com.example.demo.network.Constant.ACTION_USB_STATE);
+        registerReceiver(mReceiver, mIntentFilter);
+    }
 
-   private String getDeviceId(){
+    private String getDeviceId() {
         String response = mOkHttpHelper.post(Constant.GET_DEVICE_ID, "");
-        mDeviceIdBean = new Gson().fromJson(response, DeviceIdBean.class);
-        if(mDeviceIdBean == null){finish();return "0800";}
-        if(mDeviceIdBean.getStatuesCode() != 0){finish();return "0800";}
-        if(mDeviceIdBean.getResult().getProdectKindCode() == null){finish();return "0800";}
-        String productKindCode= mDeviceIdBean.getResult().getProdectKindCode().substring(2);
-        DecimalFormat decimalFormat =new DecimalFormat("0000");
-        String productCode=decimalFormat.format(Integer.parseInt(productKindCode));
-        return productCode;
+        DeviceIdBean mDeviceIdBean = new Gson().fromJson(response, DeviceIdBean.class);
+        String productKindCode = mDeviceIdBean.getResult().getProdectKindCode().substring(2);
+        DecimalFormat decimalFormat = new DecimalFormat("0000");
+        return decimalFormat.format(Integer.parseInt(productKindCode));
     }
 
     private void initData() {
         Bundle bundle = getIntent().getExtras();
-        mThreeCCode = bundle.getString(Constant.THREE_ID);
+        assert bundle != null;
+        String mThreeCCode = bundle.getString(Constant.THREE_ID);
         mDeviceType = bundle.getString(Constant.DEIVCE_ID);
-        mTerminalId = bundle.getString(Constant.TERMINAL_ID);
+        String mTerminalId = bundle.getString(Constant.TERMINAL_ID);
         mProductId = bundle.getString(Constant.PRODUCT_ID);
         mDate = bundle.getString(Constant.DATE_CODE);
-        String deviceId =  getDeviceId();
+        String deviceId = getDeviceId();
         mTvThreeId.setText(mThreeCCode);
         mTvDeviceId.setText(mDeviceType);
         mTvTerminalId.setText(String.format("%s%s", deviceId, mTerminalId));
@@ -81,95 +141,171 @@ public class ResultActivity extends BaseActivity implements MyException {
 
     @Override
     public void setListener() {
-        mTvEntry.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String terminalId = mTvTerminalId.getText().toString().trim();
-                ConfigBean configBean = new ConfigBean();
-                configBean.setProducerID(mProductId);
-                configBean.setTerminalModel(mDeviceType);
-                configBean.setTerminalId(terminalId);
-                configBean.setManufactureDate(mDate);
-                if(judgeService(terminalId)){
-                    mTvEntry.setBackground(getResources().getDrawable(R.drawable.hollow_circle));
-                    mTvEntry.setTextColor(getResources().getColor(R.color.colorPrimary));
-                    String json = new Gson().toJson(configBean);
-                    String response = mOkHttpHelper.post(Constant.UPDATA_CONFIG, json);
-                    if(response == null)return;
-                    SucceedBean succeedBean = new Gson().fromJson(response, SucceedBean.class);
-                    if (succeedBean.getStatuesCode() == 0) {
-                        Intent intent = new Intent(ResultActivity.this, QRCodeActivity.class);
-                        intent.putExtra(Constant.PRODUCT_ID, mProductId);
-                        intent.putExtra(Constant.DEIVCE_ID, mDeviceType);
-                        startActivity(intent);
-                    }
+        mIvScanResult.setOnClickListener(this);
+        mTvEntrySuccess.setOnClickListener(this);
+        mTvEntry.setOnClickListener(this);
+        mTvRescan.setOnClickListener(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mLlScanResultHint.setVisibility(View.GONE);
+        mTvEntry.setBackground(getResources().getDrawable(R.drawable.ll_click_bg_style));
+        mTvEntry.setTextColor(Color.WHITE);
+        mIsClock = false;
+    }
+
+    @Override
+    public void show(int flag, String str) {
+        mLlScanResultHint.setVisibility(View.VISIBLE);
+        mTvScanResultHint.setText("设备无应答，请重新连接设备");
+        mHint = "设备无应答，请重新连接设备";
+        mTvRescan.setVisibility(View.GONE);
+        Toast.makeText(ResultActivity.this, str, Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean judgeService(String qr) {
+        if(!CheckNetworkStatus.isNetworkAvailable(ResultActivity.this)){
+            mLlScanResultHint.setVisibility(View.VISIBLE);
+            mHint = "无法与服务器通讯，请检查手机网络";
+            mTvScanResultHint.setText("无法与服务器通讯，请检查手机网络");
+            mTvRescan.setVisibility(View.GONE);
+            mBaseDialog.dismiss();
+        }
+        String ok = mOkHttpHelper.post(Constant.GET_DEVICE_ID, "");
+        DeviceIdBean mDeviceIdBean = new Gson().fromJson(ok, DeviceIdBean.class);
+        if(mDeviceIdBean.getStatuesCode() == 0){
+            //时间戳（UNIX时间戳)
+            String timestamp = System.currentTimeMillis() / 1000 + "";
+            mOkHttpHelper.addParam("terminal_id", qr);
+            mOkHttpHelper.addParam("timestamp", timestamp);
+            mOkHttpHelper.addParam("sign", Objects.requireNonNull(CommonMethod.getStrMd5(Objects.requireNonNull(CommonMethod.getStrMd5(qr)).toLowerCase() + timestamp)).toLowerCase());
+            mOkHttpHelper.addParam("device_info", "");
+            mOkHttpHelper.addParam("flag", "1");
+            String url = mOkHttpHelper.getParamWithString(Constant.TEST_DEVICE_UNIQUE_CODE);
+            String response = mOkHttpHelper.post(url, "");
+            //返回值 ，0：正常；-1:其他错误；-2：SIGN错误，-4：该设备已报备过，-5设备唯一码不全部是数字
+            DeviceUniqueCodeBean deviceUniqueCodeBean = new Gson().fromJson(response, DeviceUniqueCodeBean.class);
+            if (deviceUniqueCodeBean == null) return false;
+            Log.i(TAG, deviceUniqueCodeBean.toString());
+            if (0 == deviceUniqueCodeBean.getRet()) {
+                return true;
+            } else if (-1 == deviceUniqueCodeBean.getRet()) {
+                Toast.makeText(ResultActivity.this, "其他错误", Toast.LENGTH_SHORT).show();
+            } else if (-2 == deviceUniqueCodeBean.getRet()) {
+                Toast.makeText(ResultActivity.this, "SIGN错误", Toast.LENGTH_SHORT).show();
+            } else if (-4 == deviceUniqueCodeBean.getRet()) {
+                mHint = "设备唯一码已存在，请请重新扫码";
+                mLlScanResultHint.setVisibility(View.VISIBLE);
+                mTvScanResultHint.setText("设备唯一码已存在，请");
+                mTvRescan.setVisibility(View.VISIBLE);
+            } else if (-5 == deviceUniqueCodeBean.getRet()) {
+                mLlScanResultHint.setVisibility(View.VISIBLE);
+                mHint = "设备唯一码格式错误，请请重新扫码";
+                mTvScanResultHint.setText("设备唯一码格式错误，请");
+                mTvRescan.setVisibility(View.VISIBLE);
+            } else {
+                Toast.makeText(ResultActivity.this, "未知错误", Toast.LENGTH_SHORT).show();
+            }
+            mBaseDialog.dismiss();
+            return false;
+        }
+        return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        if(R.id.iv_scan_result_back == id){
+            finish();
+            return;
+        }
+         if(R.id.tv_rescan == id){
+            setCameraManifest();
+            return;
+        } if(R.id.tv_entry_success == id){
+            Toast.makeText(ResultActivity.this,mHint,Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(R.id.tv_entry == id){
+            if(mIsClock){
+                Toast.makeText(ResultActivity.this,mHint,Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mBaseDialog.show();
+            mTvEntry.setBackground(getResources().getDrawable(R.drawable.hollow_circle));
+            mTvEntry.setTextColor(getResources().getColor(R.color.colorPrimary));
+            mIsClock = true;
+            String terminalId = mTvTerminalId.getText().toString().trim();
+            ConfigBean configBean = new ConfigBean();
+            configBean.setProducerID(mProductId);
+            configBean.setTerminalModel(mDeviceType);
+            configBean.setTerminalId(terminalId);
+            configBean.setManufactureDate(mDate);
+            if (judgeService(terminalId)) {
+                String json = new Gson().toJson(configBean);
+                String response = mOkHttpHelper.post(Constant.UPDATA_CONFIG, json);
+                if (response == null) return;
+                SucceedBean succeedBean = new Gson().fromJson(response, SucceedBean.class);
+                if (succeedBean.getStatuesCode() == 0) {
+                    mBaseDialog.dismiss();
+                    mHint = "设备信息录入成功!";
+                    mLlScanResultHint.setVisibility(View.VISIBLE);
+                    mTvScanResultHint.setText("设备信息录入成功!");
+                    mTvScanResultHint.setCompoundDrawables(null,null,null,null);
+                    mTvRescan.setVisibility(View.GONE);
+                    mTvEntry.setVisibility(View.GONE);
                 }
             }
-        });
+        }
+    }
+
+    private void setCameraManifest() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(ResultActivity.this, "需要动态获取权限", Toast.LENGTH_SHORT).show();
+                ActivityCompat.requestPermissions(ResultActivity.this, new String[]{Manifest.permission.CAMERA}, 0);
+            } else {
+                CommonMethod.StartActivityForResultCapture(ResultActivity.this);
+            }
+        } else {
+            CommonMethod.StartActivityForResultCapture(ResultActivity.this);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 0 && grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    CommonMethod.StartActivityForResultCapture(ResultActivity.this);
+                }
+            }
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // 扫描二维码/条码回传
+        if (requestCode == 0 && resultCode == RESULT_OK) {
+            if (data != null) {
+                String content = data.getStringExtra(com.yzq.zxinglibrary.common.Constant.CODED_CONTENT);
+                if(content == null) return;
+                int length = content.length();
+                String terminalId = content.substring(length- 8);
+                String deviceId = getDeviceId();
+                mTvThreeId.setText(content.substring(0, 7));
+                mTvDeviceId.setText(content.substring(7,13));
+                mTvTerminalId.setText(String.format("%s%s", deviceId, terminalId));
+                mTvProductId.setText(mProductId);
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-    @Override
-    public void show(int flag,String str) {
-        Toast.makeText(ResultActivity.this, str, Toast.LENGTH_SHORT).show();
-    }
-
-    private boolean judgeService(String qr){
-        boolean success = false;
-        //时间戳（UNIX时间戳)
-        String timestamp = System.currentTimeMillis()/1000+"";
-        mOkHttpHelper.addParam("terminal_id",qr);
-        mOkHttpHelper.addParam("timestamp",timestamp);
-        Log.i(TAG,"getStrMd5:"+getStrMd5(qr).toLowerCase());
-        mOkHttpHelper.addParam("sign", getStrMd5(String.format("%s%s", getStrMd5(qr).toLowerCase(), timestamp)).toLowerCase());
-        mOkHttpHelper.addParam("device_info","");
-        mOkHttpHelper.addParam("flag","1");
-        String url =  mOkHttpHelper.getParamWithString(Constant.TEST_DEVICE_UNIQUE_CODE);
-        String response = mOkHttpHelper.post(url, "");
-        //返回值 ，0：正常；-1:其他错误；-2：SIGN错误，-4：该设备已报备过，-5设备唯一码不全部是数字
-        DeviceUniqueCodeBean deviceUniqueCodeBean = new Gson().fromJson(response, DeviceUniqueCodeBean.class);
-        if(deviceUniqueCodeBean == null)return false;
-        Log.i(TAG,deviceUniqueCodeBean.toString());
-        if( 0 == deviceUniqueCodeBean.getRet()){
-            success = true;
-        }else if(-1 == deviceUniqueCodeBean.getRet()) {
-            Toast.makeText(ResultActivity.this,"其他错误",Toast.LENGTH_SHORT).show();
-        }else if(-2 == deviceUniqueCodeBean.getRet()){
-            Toast.makeText(ResultActivity.this,"SIGN错误",Toast.LENGTH_SHORT).show();
-        }else if(-4 == deviceUniqueCodeBean.getRet()){
-            Toast.makeText(ResultActivity.this,"该设备已报备过",Toast.LENGTH_SHORT).show();
-        }else if(-5 == deviceUniqueCodeBean.getRet()){
-            Toast.makeText(ResultActivity.this,"设备唯一码不全部是数字",Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(ResultActivity.this,"未知错误",Toast.LENGTH_SHORT).show();
-        }
-        return success;
-    }
-
-    public static String getStrMd5(String msg) {
-        char[] hexDigits = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
-        try {
-            byte[] btInput = msg.getBytes();
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(btInput);
-            byte[] md = digest.digest();
-            int j = md.length;
-            char[] str = new char[j * 2];
-            int k = 0;
-            for(int i = 0; i < j; ++i) {
-                byte byte0 = md[i];
-                str[k++] = hexDigits[byte0 >>> 4 & 15];
-                str[k++] = hexDigits[byte0 & 15];
-            }
-            return new String(str);
-        } catch (Exception var10) {
-            var10.printStackTrace();
-            return null;
-        }
+        unregisterReceiver(mReceiver);
     }
 }

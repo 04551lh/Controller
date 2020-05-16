@@ -28,11 +28,9 @@
             android:textStyle="bold"
             android:paddingBottom="16dp"
             android:layout_height="wrap_content"/>
-
     </LinearLayout>
 
     <View
-        android:id="@+id/view_scan_results"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/app_background"/>
@@ -52,7 +50,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center_vertical|left"
+            android:gravity="center_vertical"
             android:text="@string/product_id"
             android:textColor="@android:color/black"
             android:textSize="16sp" />
@@ -63,7 +61,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/input_style"
             android:hint="@string/please_input"
-            android:text="75208"
+            android:text="@string/_75208"
             android:inputType="number"
             android:maxLength="5"
             android:singleLine="true"
@@ -73,53 +71,20 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical|left"
-            android:text="@string/product_type"
-            android:textColor="@android:color/black"
-            android:textSize="16sp" />
-
-        <EditText
-            android:layout_width="0dp"
-            android:layout_weight="3"
-            android:layout_height="wrap_content"
-            android:background="@drawable/input_style"
-            android:hint="@string/please_input"
-            android:text="KY-BJX"
-            android:inputType="text"
-            android:maxLength="6"
-            android:id="@+id/et_product_type"
-            android:padding="10dp"
-            android:singleLine="true"
-            android:textColor="@android:color/black"
-            android:textSize="16sp" />
-    </LinearLayout>
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="3" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:orientation="horizontal">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1" />
-
         <TextView
             android:id="@+id/tv_edit"
             android:layout_width="60dp"
@@ -163,12 +128,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1" />
     </LinearLayout>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="5" />
-
-
-
-
 </LinearLayout>

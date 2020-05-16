@@ -43,12 +43,8 @@ public class OkHttpHelper {
     private final static int READ_TIMEOUT = 2;
     private final static int WRITE_TIMEOUT = 2;
     private Map<String, String> params = null;
-    private boolean mHttps = false;
-
     private static OkHttpHelper instance = null;
-
     private MyException myException;
-
     X509TrustManager trustManager;
 
     public Map<String, String> getParams() {
@@ -65,12 +61,7 @@ public class OkHttpHelper {
 
     private OkHttpHelper() {
         //网络请求日志打印
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-            @Override
-            public void log(String message) {
-                Log.i(TAG, "--------> " + message);
-            }
-        });
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(message -> Log.i(TAG, "--------> " + message));
 
         trustManager = new X509TrustManager() {
             @Override
@@ -89,14 +80,23 @@ public class OkHttpHelper {
             }
         };
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-        mOkHttpClient = new OkHttpClient();
-        mOkHttpClient.newBuilder().sslSocketFactory(createSSLSocketFactory());
-        mOkHttpClient.newBuilder().hostnameVerifier(new TrustAllHostnameVerifier());
-        mOkHttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS);
-        mOkHttpClient.newBuilder().readTimeout(READ_TIMEOUT, TimeUnit.SECONDS);
-        mOkHttpClient.newBuilder().writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS);
-        mOkHttpClient.newBuilder().addInterceptor(logging);
-        mOkHttpClient.newBuilder().build();
+        mOkHttpClient = new OkHttpClient.Builder()
+                .sslSocketFactory(createSSLSocketFactory(), trustManager)
+                .hostnameVerifier(new TrustAllHostnameVerifier())
+                .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
+                .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
+                .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
+                .addInterceptor(logging)
+                .build();
+
+//        mOkHttpClient = new OkHttpClient();
+//        mOkHttpClient.newBuilder().sslSocketFactory(createSSLSocketFactory());
+//        mOkHttpClient.newBuilder().hostnameVerifier(new TrustAllHostnameVerifier());
+//        mOkHttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS);
+//        mOkHttpClient.newBuilder().readTimeout(READ_TIMEOUT, TimeUnit.SECONDS);
+//        mOkHttpClient.newBuilder().writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS);
+//        mOkHttpClient.newBuilder().addInterceptor(logging);
+//        mOkHttpClient.newBuilder().build();
         this.params = new HashMap<String, String>();
     }
 
@@ -151,9 +151,7 @@ public class OkHttpHelper {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public String post(String url, String json) {
         Log.d(TAG, "make port --> " + url + " with json " + json);
-
-        RequestBody body = getFormatData(params);
-        Log.i(TAG,body.toString());
+        RequestBody body = RequestBody.create(Constant.JSON, json);
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
@@ -200,9 +198,5 @@ public class OkHttpHelper {
                     .append("&");
         }
         return sb.toString().substring(0, (sb.toString().length() - 1));
-    }
-
-    public void setmHttps(boolean mHttps) {
-        this.mHttps = mHttps;
     }
 }
