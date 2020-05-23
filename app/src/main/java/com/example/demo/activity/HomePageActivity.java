@@ -71,9 +71,10 @@ public class HomePageActivity extends BaseActivity implements View.OnClickListen
                 startActivity(mainIntent);
                 break;
             case R.id.tv_non_standard_machine:
-                mTvStandardMachine.setCompoundDrawables(mNoSelectDrawable, null, mArrowDrawable, null);
-                mTvNonStandardMachine.setCompoundDrawables(mSelectDrawable, null, mArrowDrawable, null);
-                setCameraManifest();
+                Toast.makeText(HomePageActivity.this,"功能开发中，敬请期待～",Toast.LENGTH_SHORT).show();
+//                mTvStandardMachine.setCompoundDrawables(mNoSelectDrawable, null, mArrowDrawable, null);
+//                mTvNonStandardMachine.setCompoundDrawables(mSelectDrawable, null, mArrowDrawable, null);
+//                setCameraManifest();
                 break;
             case R.id.iv_settings:
                 Intent settingIntent = new Intent(HomePageActivity.this, SettingsActivity.class);
