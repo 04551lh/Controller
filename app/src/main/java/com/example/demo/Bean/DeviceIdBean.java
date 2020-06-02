@@ -38,9 +38,19 @@ public class DeviceIdBean {
     public static class ResultBean {
         /**
          * ProdectKindCode : 800
+         * "mac":""
          */
 
         private String ProdectKindCode;
+        private String mac;
+
+        public String getMac() {
+            return mac;
+        }
+
+        public void setMac(String mac) {
+            this.mac = mac;
+        }
 
         public String getProdectKindCode() {
             return ProdectKindCode;

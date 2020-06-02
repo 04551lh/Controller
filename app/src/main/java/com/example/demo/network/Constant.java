@@ -44,7 +44,7 @@ public class Constant {
 
     public static final String ACTION_USB_STATE = "android.hardware.usb.action.USB_STATE";
     //后台服务验证
-    public final static String  TEST_DEVICE_UNIQUE_CODE= "https://cloud.background.adasplus.com:80/device_info_report_insert";
+    public final static String  TEST_DEVICE_UNIQUE_CODE= "https://cloud.background.adasplus.com/device_info_report_insert";
 
 //    public final static String  TEST_DEVICE_UNIQUE_CODE= "https://test.cloud.background.adasplus.com/device_info_report_insert";
     //速度信息获取

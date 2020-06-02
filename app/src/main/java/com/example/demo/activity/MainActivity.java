@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
+import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -14,11 +17,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
+import com.example.demo.network.OkHttpHelper;
+import com.example.demo.utils.BaseDialog;
 import com.example.demo.utils.CommonMethod;
+import com.example.demo.utils.MyException;
 import com.example.demo.utils.SharedPreferencesHelper;
 import com.yzq.zxinglibrary.common.Constant;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
@@ -31,7 +39,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private TextView mTvEdit;
     private TextView mTvScan;
     private boolean mIsSave;
+    private BaseDialog mBaseDialog;
     private SharedPreferencesHelper mSharedPreferencesHelper;
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            mBaseDialog.dismiss();
+            int flag = msg.what;
+            switch (flag) {
+                case 0:
+                    Toast.makeText(MainActivity.this, "网络异常，请检查网络或者重新打开USB网络共享再试~", Toast.LENGTH_SHORT).show();
+                    break;
+                case 1:
+                    setCameraManifest();
+                    break;
+            }
+        }
+    };
+    private OkHttpHelper mOkHttpHelper;
 
     @Override
     public int getLayoutResId() {
@@ -40,13 +66,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public void initViews() {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         mSharedPreferencesHelper = new SharedPreferencesHelper(this);
         mIvKy800 = findViewById(R.id.iv_ky_800);
         mEtProductId = findViewById(R.id.et_product_id);
         mTvSave = findViewById(R.id.tv_save);
         mTvEdit = findViewById(R.id.tv_edit);
         mTvScan = findViewById(R.id.tv_scan);
+        mBaseDialog = BaseDialog.showDialog(MainActivity.this);
         mIsSave = false;
+        mOkHttpHelper = OkHttpHelper.getInstance();
         String productId = (String) mSharedPreferencesHelper.get(com.example.demo.network.Constant.PRODUCT_ID, null);
         String product = productId == null ? "75208" : productId;
         mEtProductId.setText(product);
@@ -75,7 +105,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         if (requestCode == 0 && resultCode == RESULT_OK) {
             if (data != null) {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
-
                 if (content == null) return;
                 if (content.length() < 14) return;
                 int length = content.length();
@@ -102,10 +131,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 finish();
                 break;
             case R.id.tv_edit:
-                if (!mIsSave) {
-                    Toast.makeText(MainActivity.this, R.string.please_save, Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 mEtProductId.setEnabled(true);
                 mEtProductId.setClickable(true);
                 mTvSave.setBackground(getResources().getDrawable(R.drawable.solid_round));
@@ -114,6 +139,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             case R.id.tv_save:
                 if (TextUtils.isEmpty(mEtProductId.getText())) {
                     Toast.makeText(MainActivity.this, getResources().getString(R.string.please_input_product_id_tip), Toast.LENGTH_SHORT).show();
+                    mIsSave = false;
+                    return;
+                }
+                if (5 != mEtProductId.getText().toString().trim().length()) {
+                    mIsSave = false;
+                    Toast.makeText(MainActivity.this, "请输入正确的厂商ID（5位数字）～", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 mEtProductId.setEnabled(false);
@@ -125,13 +156,36 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 mSharedPreferencesHelper.put(com.example.demo.network.Constant.PRODUCT_ID, mEtProductId.getText());
                 break;
             case R.id.tv_scan:
+                mBaseDialog.show();
+                if (5 != mEtProductId.getText().toString().trim().length()) {
+                    mIsSave = false;
+                    mBaseDialog.dismiss();
+                    Toast.makeText(MainActivity.this, "请输入正确的厂商ID（5位数字）～", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (!mIsSave) {
+                    mBaseDialog.dismiss();
                     Toast.makeText(MainActivity.this, R.string.please_save, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                setCameraManifest();
+                getNetwork();
                 break;
         }
+    }
+
+
+    private void getNetwork() {
+        new Thread() {
+            @Override
+            public void run() {
+                String response = mOkHttpHelper.post(com.example.demo.network.Constant.GET_DEVICE_ID, "");
+                if (response == null) {
+                    mHandler.sendEmptyMessage(0);
+                } else {
+                    mHandler.sendEmptyMessage(1);
+                }
+            }
+        }.start();
     }
 
     private void setCameraManifest() {
@@ -173,4 +227,5 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             mIsSave = false;
         }
     }
+
 }

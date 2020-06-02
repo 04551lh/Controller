@@ -5,7 +5,6 @@ import com.google.gson.JsonParseException;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;

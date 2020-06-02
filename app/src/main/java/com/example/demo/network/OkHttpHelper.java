@@ -81,31 +81,20 @@ public class OkHttpHelper {
         };
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         mOkHttpClient = new OkHttpClient.Builder()
-                .sslSocketFactory(createSSLSocketFactory(), trustManager)
-                .hostnameVerifier(new TrustAllHostnameVerifier())
+//                .sslSocketFactory(createSSLSocketFactory(), trustManager)
+//                .hostnameVerifier(new TrustAllHostnameVerifier())
                 .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
                 .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
                 .addInterceptor(logging)
                 .build();
-
-//        mOkHttpClient = new OkHttpClient();
-//        mOkHttpClient.newBuilder().sslSocketFactory(createSSLSocketFactory());
-//        mOkHttpClient.newBuilder().hostnameVerifier(new TrustAllHostnameVerifier());
-//        mOkHttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS);
-//        mOkHttpClient.newBuilder().readTimeout(READ_TIMEOUT, TimeUnit.SECONDS);
-//        mOkHttpClient.newBuilder().writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS);
-//        mOkHttpClient.newBuilder().addInterceptor(logging);
-//        mOkHttpClient.newBuilder().build();
         this.params = new HashMap<String, String>();
     }
 
     //okHttp3添加信任所有证书
     @SuppressLint("TrulyRandom")
     private static SSLSocketFactory createSSLSocketFactory() {
-
         SSLSocketFactory sSLSocketFactory = null;
-
         try {
             SSLContext sc = SSLContext.getInstance("TLS");
             sc.init(null, new TrustManager[]{new TrustAllManager()},
@@ -160,16 +149,21 @@ public class OkHttpHelper {
             return response.body().string();
         } catch (SocketTimeoutException e) {
             Log.i(TAG, e.toString());
-            myException.show(0, "网络异常，请检查网络或者重新打开USB网络共享再试~");
+            e.printStackTrace();
+            return null;
+//            myException.show(0, "网络异常，请检查网络或者重新打开USB网络共享再试~");
         } catch (SocketException e) {
             Log.i(TAG, e.toString());
-            myException.show(1, "网络异常，请检查网络或者重新打开USB网络共享再试~");
+            e.printStackTrace();
+            return null;
+//            myException.show(1, "网络异常，请检查网络或者重新打开USB网络共享再试~");
         } catch (IOException e) {
             Log.i(TAG, e.toString());
             e.printStackTrace();
-            myException.show(2, e.toString());
+            return null;
+//            myException.show(2, e.toString());
         }catch (NullPointerException e){
-
+            e.printStackTrace();
         }
         return null;
     }

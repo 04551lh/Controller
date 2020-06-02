@@ -94,7 +94,10 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 if (mResultBean.getPulseSpeed() == null) {
                     mResultBean.setPulseSpeed(new PlusSpeedBean.ResultBean.PulseSpeedBean());
                 }
+                mResultBean.getPulseSpeed().setEnable(mSpeedEnable);
                 mResultBean.getPulseSpeed().setPulseCoefficient(3600);
+                mResultBean.getSimulateSpeed().setValue(60);
+                mResultBean.getSimulateSpeed().setEnable(mSimulationEnable);
                 onSave();
                 break;
         }
@@ -108,10 +111,10 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         mSRLSettings.setProgressBackgroundColorSchemeResource(android.R.color.white);
         mSwitchClose = R.drawable.switch_close_icon;
         mSwitchOpen = R.drawable.switch_open_icon;
-        mSpeedEnable = 1;
-        mIvPlusSpeed.setImageResource(mSwitchOpen);
-        mSimulationEnable = 0;
-        mIvSimulationSpeed.setImageResource(mSwitchClose);
+//        mSpeedEnable = 1;
+//        mIvPlusSpeed.setImageResource(mSwitchOpen);
+//        mSimulationEnable = 0;
+//        mIvSimulationSpeed.setImageResource(mSwitchClose);
     }
 
     private void getNetwork() {
@@ -122,6 +125,13 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         }
         PlusSpeedBean plusSpeedBean = new Gson().fromJson(response, PlusSpeedBean.class);
         mResultBean = plusSpeedBean.getResult();
+        if(mResultBean.getPulseSpeed().getEnable() == 1){
+            mIvPlusSpeed.setImageResource(mSwitchOpen);
+            mIvSimulationSpeed.setImageResource(mSwitchClose);
+        }if(mResultBean.getSimulateSpeed().getEnable() == 1){
+            mIvPlusSpeed.setImageResource(mSwitchClose);
+            mIvSimulationSpeed.setImageResource(mSwitchOpen);
+        }
         mResultBean.getPulseSpeed().setEnable(mSpeedEnable);
         mResultBean.getPulseSpeed().setAutoCalibration(0);
         mResultBean.getSimulateSpeed().setEnable(mSimulationEnable);

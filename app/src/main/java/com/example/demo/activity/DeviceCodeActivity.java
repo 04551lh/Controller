@@ -120,7 +120,7 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
             configBean.setTerminalModel("");
             configBean.setTerminalId(terminalId);
             configBean.setManufactureDate("");
-            if (judgeService(terminalId)) {
+//            if (judgeService(terminalId)) {
                 String json = new Gson().toJson(configBean);
                 String response = mOkHttpHelper.post(com.example.demo.network.Constant.UPDATA_CONFIG, json);
                 if (response == null) return;
@@ -133,7 +133,7 @@ public class DeviceCodeActivity extends BaseActivity implements View.OnClickList
                     mTvEntry.setVisibility(View.GONE);
                     mTvRescan.setVisibility(View.GONE);
                 }
-            }
+//            }
         }
     }
 
