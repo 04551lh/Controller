@@ -32,7 +32,6 @@ import com.example.demo.network.OkHttpHelper;
 import com.example.demo.utils.BaseDialog;
 import com.example.demo.utils.CommonMethod;
 import com.google.gson.Gson;
-
 import java.text.DecimalFormat;
 import java.util.Objects;
 
@@ -121,6 +120,7 @@ public class ResultActivity extends BaseActivity implements View.OnClickListener
                     break;
                 case 1:
                     int arg1 = msg.arg1;
+                    Log.i(TAG, "arg1:" + arg1);
                     if (DRIVER_ID == arg1) {
                         mBaseDialog.dismiss();
                         mTvThreeId.setText(mThreeCCode);
@@ -229,6 +229,7 @@ public class ResultActivity extends BaseActivity implements View.OnClickListener
         mTvEntry.setTextColor(Color.WHITE);
         mClockEntry = false;
     }
+
     private void judgeService() {
         //时间戳（UNIX时间戳)
         String terminalId = mTvTerminalId.getText().toString().trim();
@@ -291,7 +292,7 @@ public class ResultActivity extends BaseActivity implements View.OnClickListener
                     DecimalFormat decimalFormat = new DecimalFormat("0000");
                     mDeviceId = decimalFormat.format(Integer.parseInt(productKindCode));
                     mMac = deviceIdBean.getResult().getMac();
-                    Log.i(TAG,"MAC------------->"+mMac);
+                    Log.i(TAG, "MAC------------->" + mMac);
                     Message message = new Message();
                     message.what = 1;
                     message.arg1 = DRIVER_ID;
@@ -349,21 +350,14 @@ public class ResultActivity extends BaseActivity implements View.OnClickListener
                     message.what = 0;
                     mHandler.sendMessage(message);
                 }
+                assert deviceUniqueCodeBean != null;
                 int ret = deviceUniqueCodeBean.getRet();
                 if (0 == ret) {
                     message.what = 1;
                     message.arg1 = SERVICE_ID;
                     mHandler.sendMessage(message);
-                } else if (-1 == ret) {
-                    mHandler.sendEmptyMessage(-1);
-                } else if (-2 == ret) {
-                    mHandler.sendEmptyMessage(-2);
-                } else if (-4 == ret) {
-                    mHandler.sendEmptyMessage(-4);
-                } else if (-5 == ret) {
-                    mHandler.sendEmptyMessage(-5);
                 } else {
-                    mHandler.sendEmptyMessage(-6);
+                    mHandler.sendEmptyMessage(ret);
                 }
             }
         }.start();
@@ -393,20 +387,22 @@ public class ResultActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // 扫描二维码/条码回传
         if (requestCode == 0 && resultCode == RESULT_OK) {
             if (data != null) {
                 String content = data.getStringExtra(com.yzq.zxinglibrary.common.Constant.CODED_CONTENT);
+                Log.i(TAG, "content:" + content);
                 if (content == null) return;
+                if (content.length() < 14) return;
                 int length = content.length();
-                String terminalId = content.substring(length - 8);
+                mTerminalId = content.substring(length - 8);
+                mDate = content.substring(length - 11, length - 3);
+                mDeviceType = content.substring(7, 13);
+                mThreeCCode = content.substring(0, 7);
                 getDeviceId();
-                mTvThreeId.setText(content.substring(0, 7));
-                mTvDeviceId.setText(content.substring(7, 13));
-                mTvTerminalId.setText(String.format("%s%s", mDeviceId, terminalId));
-                mTvProductId.setText(mProductId);
             }
         }
     }

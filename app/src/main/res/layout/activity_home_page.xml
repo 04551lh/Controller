@@ -54,6 +54,7 @@
         android:textColor="@color/font"
         android:textSize="@dimen/sp_16" />
     <TextView
+        android:visibility="gone"
         android:paddingTop="54dp"
         android:paddingBottom="54dp"
         android:layout_marginTop="@dimen/dp_10"

@@ -17,13 +17,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.demo.R;
 import com.example.demo.base.BaseActivity;
 import com.example.demo.network.OkHttpHelper;
 import com.example.demo.utils.BaseDialog;
 import com.example.demo.utils.CommonMethod;
-import com.example.demo.utils.MyException;
 import com.example.demo.utils.SharedPreferencesHelper;
 import com.yzq.zxinglibrary.common.Constant;
 
